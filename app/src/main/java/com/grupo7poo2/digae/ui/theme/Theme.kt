@@ -1,0 +1,90 @@
+package com.grupo7poo2.digae.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+
+// ── Esquema de color claro — Institucional Ambiental ────────────────────────
+private val LightColorScheme = lightColorScheme(
+    primary               = Green40,
+    onPrimary             = Green10,
+    primaryContainer      = Green90,
+    onPrimaryContainer    = Green10,
+
+    secondary             = Blue40,
+    onSecondary           = Blue10,
+    secondaryContainer    = Blue90,
+    onSecondaryContainer  = Blue10,
+
+    tertiary              = Teal40,
+    onTertiary            = Teal10,
+    tertiaryContainer     = Teal90,
+    onTertiaryContainer   = Teal10,
+
+    error                 = Red40,
+    onError               = Red10,
+    errorContainer        = Red90,
+    onErrorContainer      = Red10,
+
+    background            = Neutral99,
+    onBackground          = Neutral10,
+
+    surface               = Neutral99,
+    onSurface             = Neutral10,
+    surfaceVariant        = NeutralVariant90,
+    onSurfaceVariant      = NeutralVariant30,
+
+    outline               = NeutralVariant50,
+    outlineVariant        = NeutralVariant80,
+)
+
+// ── Esquema de color oscuro — Institucional Ambiental ───────────────────────
+private val DarkColorScheme = darkColorScheme(
+    primary               = Green80,
+    onPrimary             = Green20,
+    primaryContainer      = Green30,
+    onPrimaryContainer    = Green90,
+
+    secondary             = Blue80,
+    onSecondary           = Blue20,
+    secondaryContainer    = Blue30,
+    onSecondaryContainer  = Blue90,
+
+    tertiary              = Teal80,
+    onTertiary            = Teal20,
+    tertiaryContainer     = Teal30,
+    onTertiaryContainer   = Teal90,
+
+    error                 = Red80,
+    onError               = Red20,
+    errorContainer        = Red10,
+    onErrorContainer      = Red90,
+
+    background            = Neutral10,
+    onBackground          = Neutral90,
+
+    surface               = Neutral10,
+    onSurface             = Neutral90,
+    surfaceVariant        = NeutralVariant30,
+    onSurfaceVariant      = NeutralVariant80,
+
+    outline               = NeutralVariant60,
+    outlineVariant        = NeutralVariant30,
+)
+
+@Composable
+fun DIGAETheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color deshabilitado para preservar la identidad institucional
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography  = Typography,
+        content     = content
+    )
+}
