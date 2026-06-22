@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -49,7 +50,7 @@ fun WaveSeparator() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeDashboardScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -139,7 +140,10 @@ fun HomeDashboardScreen() {
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.horizontalScroll(rememberScrollState())
+                        ) {
                             // Role Badge
                             Row(
                                 modifier = Modifier
@@ -232,9 +236,10 @@ fun HomeDashboardScreen() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(16.dp))
-                            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-                            .shadow(1.dp, RoundedCornerShape(16.dp))
+                            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White)
+                            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
                     ) {
                         ActivityItem("Matriz de impactos actualizada — Facultad de Ingeniería", "Hace 2 min", FigmaGreenPrimary, true)
                         ActivityItem("Auditoría energética programada — Facultad de Medicina", "Hace 1 h", FigmaBluePrimary, true)
@@ -252,9 +257,10 @@ fun HomeDashboardScreen() {
 fun ModuleCard(modifier: Modifier = Modifier, title: String, subtitle: String, badge: String, icon: ImageVector, iconColor: Color, iconBg: Color, badgeBg: Color, badgeColor: Color) {
     Column(
         modifier = modifier
-            .background(Color.White, RoundedCornerShape(16.dp))
-            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-            .shadow(2.dp, RoundedCornerShape(16.dp))
+            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
+            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
             .clickable { }
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -282,9 +288,10 @@ fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: Im
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(16.dp))
-            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-            .shadow(2.dp, RoundedCornerShape(16.dp))
+            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
+            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
             .clickable { }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -335,8 +342,8 @@ fun BottomNavBar(activeNav: Int, onNavSelected: (Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(16.dp, spotColor = Color.Black.copy(alpha = 0.15f))
             .background(Color.White)
-            .shadow(8.dp)
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceAround
