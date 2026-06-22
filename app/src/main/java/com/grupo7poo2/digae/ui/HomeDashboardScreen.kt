@@ -40,8 +40,8 @@ fun WaveSeparator() {
         .background(FigmaGreenPrimary)) {
         val path = Path().apply {
             moveTo(0f, 0f)
-            quadraticBezierTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.5f)
-            quadraticBezierTo(size.width * 0.75f, 0f, size.width, size.height)
+            quadraticTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.5f)
+            quadraticTo(size.width * 0.75f, 0f, size.width, size.height)
             lineTo(size.width, size.height)
             lineTo(0f, size.height)
             close()
@@ -50,9 +50,9 @@ fun WaveSeparator() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeDashboardScreen() {
+fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
@@ -202,7 +202,8 @@ fun HomeDashboardScreen() {
                             iconColor = FigmaGreenPrimary,
                             iconBg = FigmaGreenIconBg,
                             badgeBg = FigmaGreenLight,
-                            badgeColor = FigmaGreenBadge
+                            badgeColor = FigmaGreenBadge,
+                            onClick = onModulo1Click
                         )
                         ModuleCard(
                             modifier = Modifier.weight(1f),
@@ -254,14 +255,14 @@ fun HomeDashboardScreen() {
 }
 
 @Composable
-fun ModuleCard(modifier: Modifier = Modifier, title: String, subtitle: String, badge: String, icon: ImageVector, iconColor: Color, iconBg: Color, badgeBg: Color, badgeColor: Color) {
+fun ModuleCard(modifier: Modifier = Modifier, title: String, subtitle: String, badge: String, icon: ImageVector, iconColor: Color, iconBg: Color, badgeBg: Color, badgeColor: Color, onClick: () -> Unit = {}) {
     Column(
         modifier = modifier
             .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
