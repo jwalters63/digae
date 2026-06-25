@@ -30,6 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.grupo7poo2.digae.ui.theme.*
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.grupo7poo2.digae.modelos.ActividadReciente
+import com.grupo7poo2.digae.modelos.ActividadRepository
+import com.grupo7poo2.digae.modelos.ModuloApp
 
 // --- FORMA DE OLA (WAVE) ---
 @Composable
@@ -52,10 +56,20 @@ fun WaveSeparator() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
+fun HomeDashboardScreen(
+    matricesCount: Int = 0,
+    auditoriasCount: Int = 0,
+    bitacorasCount: Int = 0,
+    onModulo1Click: () -> Unit = {},
+    onModulo2Click: () -> Unit = {},
+    onModulo3Click: () -> Unit = {},
+    onNavigateToSearch: () -> Unit = {},
+    onNavigateToAlertas: () -> Unit = {}
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
+    val actividades by ActividadRepository.actividades.collectAsStateWithLifecycle()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -74,7 +88,11 @@ fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
         Scaffold(
             containerColor = FigmaAppBackground,
             bottomBar = {
-                BottomNavBar(activeNav) { activeNav = it }
+                BottomNavBar(activeNav) { index ->
+                    if (index == 1) onNavigateToSearch()
+                    else if (index == 2) onNavigateToAlertas()
+                    else activeNav = index
+                }
             }
         ) { innerPadding ->
             Column(
@@ -197,7 +215,7 @@ fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
                             modifier = Modifier.weight(1f),
                             title = "Criticidad Ambiental",
                             subtitle = "Matrices de aspectos e impactos",
-                            badge = "12 activos en campus",
+                            badge = "$matricesCount matrices activas",
                             icon = Icons.Outlined.Assessment,
                             iconColor = FigmaGreenPrimary,
                             iconBg = FigmaGreenIconBg,
@@ -209,12 +227,13 @@ fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
                             modifier = Modifier.weight(1f),
                             title = "Supervisión en Campo",
                             subtitle = "Auditorías de infraestructura y energía",
-                            badge = "3 auditorías globales",
+                            badge = "$auditoriasCount auditorías en curso",
                             icon = Icons.AutoMirrored.Outlined.FactCheck,
                             iconColor = FigmaBluePrimary,
                             iconBg = FigmaBlueIconBg,
                             badgeBg = FigmaBlueLight,
-                            badgeColor = FigmaBlueBadge
+                            badgeColor = FigmaBlueBadge,
+                            onClick = onModulo2Click
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -222,29 +241,60 @@ fun HomeDashboardScreen(onModulo1Click: () -> Unit = {}) {
                     FullWidthModuleCard(
                         title = "Trazabilidad de Residuos",
                         subtitle = "Registro y cadena de custodia",
-                        badge = "7 sedes registradas",
+                        badge = "$bitacorasCount bitácoras registradas",
                         icon = Icons.Outlined.Recycling,
                         iconColor = FigmaTealPrimary,
                         iconBg = FigmaTealIconBg,
                         badgeBg = FigmaTealLight,
-                        badgeColor = FigmaTealBadge
+                        badgeColor = FigmaTealBadge,
+                        onClick = onModulo3Click
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text("ACTIVIDAD RECIENTE", color = FigmaTextSecondary, fontSize = 13.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("ACTIVIDAD RECIENTE", color = FigmaTextSecondary, fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium, letterSpacing = 1.sp)
+                        if (actividades.isNotEmpty()) {
+                            Text("${actividades.size} eventos", color = FigmaTextLight, fontSize = 11.sp)
+                        }
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
-                            .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-                    ) {
-                        ActivityItem("Matriz de impactos actualizada — Facultad de Ingeniería", "Hace 2 min", FigmaGreenPrimary, true)
-                        ActivityItem("Auditoría energética programada — Facultad de Medicina", "Hace 1 h", FigmaBluePrimary, true)
-                        ActivityItem("Registro de residuos peligrosos enviado — Edificio", "Hace 3 h", FigmaTealPrimary, false)
+                    if (actividades.isEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.White)
+                                .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Outlined.EventNote, null, tint = FigmaTextLight, modifier = Modifier.size(32.dp))
+                            Text("Sin actividad reciente", fontSize = 13.sp, color = FigmaTextSecondary)
+                            Text("Las acciones en los módulos aparecerán aquí", fontSize = 11.sp, color = FigmaTextLight)
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.1f))
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.White)
+                                .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                        ) {
+                            val recent = actividades.take(5)
+                            recent.forEachIndexed { index, act ->
+                                ActivityItem(
+                                    actividad = act,
+                                    showDivider = index < recent.size - 1
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(80.dp))
@@ -285,7 +335,7 @@ fun ModuleCard(modifier: Modifier = Modifier, title: String, subtitle: String, b
 }
 
 @Composable
-fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: ImageVector, iconColor: Color, iconBg: Color, badgeBg: Color, badgeColor: Color) {
+fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: ImageVector, iconColor: Color, iconBg: Color, badgeBg: Color, badgeColor: Color, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -293,7 +343,7 @@ fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: Im
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .border(1.dp, FigmaGreenPrimary.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -318,23 +368,48 @@ fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: Im
 }
 
 @Composable
-fun ActivityItem(text: String, time: String, dotColor: Color, showDivider: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(modifier = Modifier
-            .size(8.dp)
-            .background(dotColor, CircleShape))
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(text, color = FigmaTextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f), maxLines = 2)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(time, color = FigmaTextLight, fontSize = 11.sp)
+fun ActivityItem(actividad: ActividadReciente, showDivider: Boolean) {
+    val dotColor = when (actividad.tipoAccion) {
+        com.grupo7poo2.digae.modelos.TipoAccion.CREAR -> FigmaGreenPrimary
+        com.grupo7poo2.digae.modelos.TipoAccion.EDITAR -> Color(0xFFF57C00) // Naranja
+        com.grupo7poo2.digae.modelos.TipoAccion.ELIMINAR -> Color(0xFFD32F2F) // Rojo
     }
-    if (showDivider) {
-        HorizontalDivider(color = FigmaGreenPrimary.copy(alpha = 0.08f), thickness = 1.dp)
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.size(8.dp).background(dotColor, CircleShape))
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = actividad.titulo,
+                    color = FigmaTextPrimary, fontSize = 13.sp, maxLines = 2
+                )
+                Row(
+                    modifier = Modifier.padding(top = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(dotColor.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                    ) {
+                        Text(actividad.modulo.label, fontSize = 9.sp, color = dotColor, fontWeight = FontWeight.Medium)
+                    }
+                    Text("·", fontSize = 10.sp, color = FigmaTextLight)
+                    Text(actividad.autor, fontSize = 10.sp, color = FigmaTextSecondary)
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(actividad.tiempoRelativo(), color = FigmaTextLight, fontSize = 10.sp)
+        }
+        if (showDivider) {
+            HorizontalDivider(color = FigmaGreenPrimary.copy(alpha = 0.08f), thickness = 1.dp)
+        }
     }
 }
 

@@ -32,6 +32,8 @@ class CriticidadViewModel : ViewModel() {
     // Lista mutable interna de matrices
     private val _matrices = mutableListOf<MatrizAspectos>()
 
+    private val usuarioActual = "Ing. Carlos Medina"
+
     init {
         cargarDatosSemilla()
     }
@@ -88,12 +90,29 @@ class CriticidadViewModel : ViewModel() {
             )
             _matrices.add(nueva)
         }
+        ActividadRepository.registrar(
+            titulo = if (idExistente == null) "Nueva matriz — ${area.trim()}" else "Matriz editada — ${area.trim()}",
+            descripcion = actividad.trim(),
+            autor = usuarioActual,
+            modulo = ModuloApp.CRITICIDAD,
+            accion = if (idExistente == null) TipoAccion.CREAR else TipoAccion.EDITAR
+        )
         publicarMatrices()
         cerrarFormMatriz()
     }
 
     fun eliminarMatriz(matrizId: String) {
+        val m = _matrices.find { it.id == matrizId }
         _matrices.removeAll { it.id == matrizId }
+        m?.let {
+            ActividadRepository.registrar(
+                titulo = "Matriz eliminada — ${it.area}",
+                descripcion = it.actividad,
+                autor = usuarioActual,
+                modulo = ModuloApp.CRITICIDAD,
+                accion = TipoAccion.ELIMINAR
+            )
+        }
         publicarMatrices()
     }
 
@@ -157,10 +176,18 @@ class CriticidadViewModel : ViewModel() {
 
         publicarMatrices()
         cerrarFormAspecto()
+        ActividadRepository.registrar(
+            titulo = if (aspectoEditandoId == null) "Aspecto registrado — ${descripcion.trim()}" else "Aspecto editado — ${descripcion.trim()}",
+            descripcion = "Matriz: ${_matrices.find { it.id == matrizId }?.area ?: matrizId}",
+            autor = usuarioActual,
+            modulo = ModuloApp.CRITICIDAD,
+            accion = if (aspectoEditandoId == null) TipoAccion.CREAR else TipoAccion.EDITAR
+        )
     }
 
     fun eliminarAspecto(matrizId: String, aspectoId: String) {
         val matriz = _matrices.find { it.id == matrizId } ?: return
+        val asp = matriz.aspectos.find { it.id == aspectoId }
         val nuevaMatriz = MatrizAspectos(
             id = matriz.id, area = matriz.area, actividad = matriz.actividad,
             fechaRegistro = matriz.fechaRegistro, estado = matriz.estado
@@ -168,6 +195,15 @@ class CriticidadViewModel : ViewModel() {
         matriz.aspectos.filter { it.id != aspectoId }.forEach { nuevaMatriz.agregarAspecto(it) }
         val idx = _matrices.indexOfFirst { it.id == matrizId }
         if (idx >= 0) _matrices[idx] = nuevaMatriz
+        asp?.let {
+            ActividadRepository.registrar(
+                titulo = "Aspecto eliminado — ${it.descripcion}",
+                descripcion = "Matriz: ${matriz.area}",
+                autor = usuarioActual,
+                modulo = ModuloApp.CRITICIDAD,
+                accion = TipoAccion.ELIMINAR
+            )
+        }
         publicarMatrices()
     }
 
