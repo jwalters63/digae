@@ -57,7 +57,7 @@ class SupervisionViewModel : ViewModel() {
         _uiState.update { it.copy(mostrarNuevaSupervision = false, supervisionSeleccionadaId = null) }
     }
 
-    fun guardarSupervision(area: String, tipo: TipoSupervision, estado: EstadoSupervision, supervisor: String) {
+    fun guardarSupervision(instalacionId: String, tipo: TipoSupervision, estado: EstadoSupervision, supervisor: String) {
         val idExistente = _uiState.value.supervisionSeleccionadaId
         if (idExistente != null) {
             val idx = _supervisiones.indexOfFirst { it.id == idExistente }
@@ -65,7 +65,7 @@ class SupervisionViewModel : ViewModel() {
                 val original = _supervisiones[idx]
                 val nueva = Supervision(
                     id = original.id,
-                    area = area.trim(),
+                    instalacionId = instalacionId.trim(),
                     tipo = tipo,
                     fecha = original.fecha,
                     supervisor = supervisor.trim(),
@@ -77,7 +77,7 @@ class SupervisionViewModel : ViewModel() {
         } else {
             val nueva = Supervision(
                 id = "SUP-${(1000..9999).random()}",
-                area = area.trim(),
+                instalacionId = instalacionId.trim(),
                 tipo = tipo,
                 fecha = Date(),
                 supervisor = supervisor.trim(),
@@ -86,7 +86,7 @@ class SupervisionViewModel : ViewModel() {
             _supervisiones.add(nueva)
         }
         ActividadRepository.registrar(
-            titulo = if (idExistente == null) "Nueva supervisión — ${area.trim()}" else "Supervisión editada — ${area.trim()}",
+            titulo = if (idExistente == null) "Nueva supervisión — ${instalacionId.trim()}" else "Supervisión editada — ${instalacionId.trim()}",
             descripcion = tipo.label,
             autor = supervisor.trim().ifBlank { usuarioActual },
             modulo = ModuloApp.SUPERVISION,
@@ -101,7 +101,7 @@ class SupervisionViewModel : ViewModel() {
         _supervisiones.removeAll { it.id == id }
         s?.let {
             ActividadRepository.registrar(
-                titulo = "Supervisión eliminada — ${it.area}",
+                titulo = "Supervisión eliminada — ${it.instalacionId}",
                 descripcion = it.tipo.label,
                 autor = usuarioActual,
                 modulo = ModuloApp.SUPERVISION,
@@ -148,7 +148,7 @@ class SupervisionViewModel : ViewModel() {
         reconstruirSupervision(supervision, itemsActualizados)
         ActividadRepository.registrar(
             titulo = if (itemEditandoId == null) "Ítem registrado — ${descripcion.trim()}" else "Ítem editado — ${descripcion.trim()}",
-            descripcion = "Supervisión: ${supervision.area}",
+            descripcion = "Supervisión: ${supervision.instalacionId}",
             autor = usuarioActual,
             modulo = ModuloApp.SUPERVISION,
             accion = if (itemEditandoId == null) TipoAccion.CREAR else TipoAccion.EDITAR
@@ -164,7 +164,7 @@ class SupervisionViewModel : ViewModel() {
         item?.let {
             ActividadRepository.registrar(
                 titulo = "Ítem eliminado — ${it.descripcion}",
-                descripcion = "Supervisión: ${supervision.area}",
+                descripcion = "Supervisión: ${supervision.instalacionId}",
                 autor = usuarioActual,
                 modulo = ModuloApp.SUPERVISION,
                 accion = TipoAccion.ELIMINAR
@@ -205,7 +205,7 @@ class SupervisionViewModel : ViewModel() {
         _supervisiones.find { it.id == supervisionId }?.items?.find { it.id == itemId }
 
     private fun reconstruirSupervision(original: Supervision, items: List<ItemSupervision>) {
-        val nueva = Supervision(original.id, original.area, original.tipo, original.fecha, original.supervisor, original.estado)
+        val nueva = Supervision(original.id, original.instalacionId, original.tipo, original.fecha, original.supervisor, original.estado)
         items.forEach { nueva.agregarItem(it) }
         val idx = _supervisiones.indexOfFirst { it.id == original.id }
         if (idx >= 0) _supervisiones[idx] = nueva

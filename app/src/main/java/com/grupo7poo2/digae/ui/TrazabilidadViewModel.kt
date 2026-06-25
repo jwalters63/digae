@@ -56,7 +56,7 @@ class TrazabilidadViewModel : ViewModel() {
         _uiState.update { it.copy(mostrarNuevaBitacora = false, bitacoraSeleccionadaId = null) }
     }
 
-    fun guardarBitacora(area: String, empresa: String, responsable: String, estado: EstadoBitacora) {
+    fun guardarBitacora(instalacionId: String, empresa: String, responsable: String, estado: EstadoBitacora) {
         val idExistente = _uiState.value.bitacoraSeleccionadaId
         val esNueva = idExistente == null
 
@@ -64,7 +64,7 @@ class TrazabilidadViewModel : ViewModel() {
             val idx = _bitacoras.indexOfFirst { it.id == idExistente }
             if (idx >= 0) {
                 val original = _bitacoras[idx]
-                val nueva = BitacoraResiduos(original.id, area.trim(), empresa.trim(),
+                val nueva = BitacoraResiduos(original.id, instalacionId.trim(), empresa.trim(),
                     responsable.trim(), original.fecha, estado)
                 original.residuos.forEach { nueva.registrarSalida(it) }
                 _bitacoras[idx] = nueva
@@ -72,13 +72,13 @@ class TrazabilidadViewModel : ViewModel() {
         } else {
             _bitacoras.add(BitacoraResiduos(
                 id = "BIT-${UUID.randomUUID().toString().take(5).uppercase()}",
-                area = area.trim(), empresa = empresa.trim(),
+                instalacionId = instalacionId.trim(), empresa = empresa.trim(),
                 responsable = responsable.trim(), fecha = Date(), estado = estado
             ))
         }
 
         ActividadRepository.registrar(
-            titulo = if (esNueva) "Nueva bitácora — $area" else "Bitácora editada — $area",
+            titulo = if (esNueva) "Nueva bitácora — $instalacionId" else "Bitácora editada — $instalacionId",
             descripcion = "Empresa: $empresa",
             autor = usuarioActual,
             modulo = ModuloApp.TRAZABILIDAD,
@@ -94,7 +94,7 @@ class TrazabilidadViewModel : ViewModel() {
         _bitacoras.removeAll { it.id == id }
         b?.let {
             ActividadRepository.registrar(
-                titulo = "Bitácora eliminada — ${it.area}",
+                titulo = "Bitácora eliminada — ${it.instalacionId}",
                 descripcion = it.empresa,
                 autor = usuarioActual,
                 modulo = ModuloApp.TRAZABILIDAD,
@@ -139,7 +139,7 @@ class TrazabilidadViewModel : ViewModel() {
 
         ActividadRepository.registrar(
             titulo = if (esNuevo) "Residuo registrado — ${tipo.label}" else "Residuo editado — ${tipo.label}",
-            descripcion = "$descripcion · ${bitacora.area}",
+            descripcion = "$descripcion · ${bitacora.instalacionId}",
             autor = usuarioActual,
             modulo = ModuloApp.TRAZABILIDAD,
             accion = if (esNuevo) TipoAccion.CREAR else TipoAccion.EDITAR
@@ -156,7 +156,7 @@ class TrazabilidadViewModel : ViewModel() {
         res?.let {
             ActividadRepository.registrar(
                 titulo = "Residuo eliminado — ${it.tipo.label}",
-                descripcion = "${it.descripcion} · ${bitacora.area}",
+                descripcion = "${it.descripcion} · ${bitacora.instalacionId}",
                 autor = usuarioActual,
                 modulo = ModuloApp.TRAZABILIDAD,
                 accion = TipoAccion.ELIMINAR
@@ -171,7 +171,7 @@ class TrazabilidadViewModel : ViewModel() {
         _bitacoras.find { it.id == bitacoraId }?.residuos?.find { it.id == residuoId }
 
     private fun reconstruirBitacora(original: BitacoraResiduos, residuos: List<Residuo>) {
-        val nueva = BitacoraResiduos(original.id, original.area, original.empresa,
+        val nueva = BitacoraResiduos(original.id, original.instalacionId, original.empresa,
             original.responsable, original.fecha, original.estado)
         residuos.forEach { nueva.registrarSalida(it) }
         val idx = _bitacoras.indexOfFirst { it.id == original.id }

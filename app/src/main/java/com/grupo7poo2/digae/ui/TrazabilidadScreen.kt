@@ -87,14 +87,14 @@ fun TrazabilidadScreen(
         val bit = uiState.bitacoraSeleccionadaId?.let { viewModel.obtenerBitacora(it) }
         NuevaBitacoraSheet(
             bitacoraExistente = bit, onDismiss = viewModel::cerrarFormBitacora,
-            onGuardar = { area, empresa, resp, estado -> viewModel.guardarBitacora(area, empresa, resp, estado) }
+            onGuardar = { instalacionId, empresa, resp, estado -> viewModel.guardarBitacora(instalacionId, empresa, resp, estado) }
         )
     }
 
     bitacoraParaEliminar?.let { bit ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Bitácora",
-            mensaje = "¿Eliminar la bitácora de \"${bit.area}\"? Esta acción no se puede deshacer.",
+            mensaje = "¿Eliminar la bitácora de la instalación seleccionada? Esta acción no se puede deshacer.",
             onConfirmar = { viewModel.eliminarBitacora(bit.id); bitacoraParaEliminar = null },
             onCancelar = { bitacoraParaEliminar = null }
         )
@@ -240,7 +240,7 @@ private fun BitacoraCard(
                     Icon(Icons.Outlined.Inventory2, null, tint = FigmaTealPrimary, modifier = Modifier.size(24.dp))
                 }
                 Column {
-                    Text(bitacora.area, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
+                    Text(bitacora.instalacionId, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
                     Text(bitacora.empresa, color = FigmaTextSecondary, fontSize = 12.sp)
                 }
             }
@@ -359,7 +359,7 @@ fun TrazabilidadDetalleScreen(
                     Column {
                         Text("Residuos Registrados", fontWeight = FontWeight.SemiBold,
                             color = Color.White, fontSize = 18.sp)
-                        Text(bitacora?.area ?: "", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
+                        Text("Instalación ID: ${bitacora?.instalacionId ?: ""}", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
                     }
                 },
                 navigationIcon = {

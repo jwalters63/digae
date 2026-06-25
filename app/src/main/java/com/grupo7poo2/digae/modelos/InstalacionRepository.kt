@@ -28,7 +28,7 @@ object InstalacionRepository {
             descripcion = "Instalación agregada al catálogo",
             autor = "Administrador del Sistema", // hardcoded para el ejemplo
             modulo = ModuloApp.CRITICIDAD, // Podemos mapearlo de forma neutral
-            tipoAccion = TipoAccion.CREAR
+            accion = TipoAccion.CREAR
         )
     }
 
@@ -43,7 +43,7 @@ object InstalacionRepository {
                 descripcion = "Instalación eliminada del catálogo",
                 autor = "Administrador del Sistema",
                 modulo = ModuloApp.CRITICIDAD,
-                tipoAccion = TipoAccion.ELIMINAR
+                accion = TipoAccion.ELIMINAR
             )
         }
     }

@@ -62,7 +62,7 @@ class CriticidadViewModel : ViewModel() {
         _uiState.update { it.copy(mostrarNuevaMatriz = false, matrizSeleccionadaId = null) }
     }
 
-    fun guardarMatriz(area: String, actividad: String, estado: EstadoMatriz) {
+    fun guardarMatriz(instalacionId: String, actividad: String, estado: EstadoMatriz) {
         val idExistente = _uiState.value.matrizSeleccionadaId
         if (idExistente != null) {
             // Editar existente: reemplazar preservando aspectos
@@ -71,7 +71,7 @@ class CriticidadViewModel : ViewModel() {
                 val original = _matrices[idx]
                 val nueva = MatrizAspectos(
                     id = original.id,
-                    area = area.trim(),
+                    instalacionId = instalacionId.trim(),
                     actividad = actividad.trim(),
                     fechaRegistro = original.fechaRegistro,
                     estado = estado
@@ -83,7 +83,7 @@ class CriticidadViewModel : ViewModel() {
             // Nueva matriz
             val nueva = MatrizAspectos(
                 id = "MAT-${_matrices.size + 1}".padStart(7, '0').replace("MAT-", "MAT-"),
-                area = area.trim(),
+                instalacionId = instalacionId.trim(),
                 actividad = actividad.trim(),
                 fechaRegistro = Date(),
                 estado = estado
@@ -91,7 +91,7 @@ class CriticidadViewModel : ViewModel() {
             _matrices.add(nueva)
         }
         ActividadRepository.registrar(
-            titulo = if (idExistente == null) "Nueva matriz — ${area.trim()}" else "Matriz editada — ${area.trim()}",
+            titulo = if (idExistente == null) "Nueva matriz — ${instalacionId.trim()}" else "Matriz editada — ${instalacionId.trim()}",
             descripcion = actividad.trim(),
             autor = usuarioActual,
             modulo = ModuloApp.CRITICIDAD,
@@ -106,7 +106,7 @@ class CriticidadViewModel : ViewModel() {
         _matrices.removeAll { it.id == matrizId }
         m?.let {
             ActividadRepository.registrar(
-                titulo = "Matriz eliminada — ${it.area}",
+                titulo = "Matriz eliminada — ${it.instalacionId}",
                 descripcion = it.actividad,
                 autor = usuarioActual,
                 modulo = ModuloApp.CRITICIDAD,
@@ -164,7 +164,7 @@ class CriticidadViewModel : ViewModel() {
 
         val matrizActualizada = MatrizAspectos(
             id = matriz.id,
-            area = matriz.area,
+            instalacionId = matriz.instalacionId,
             actividad = matriz.actividad,
             fechaRegistro = matriz.fechaRegistro,
             estado = matriz.estado
@@ -178,7 +178,7 @@ class CriticidadViewModel : ViewModel() {
         cerrarFormAspecto()
         ActividadRepository.registrar(
             titulo = if (aspectoEditandoId == null) "Aspecto registrado — ${descripcion.trim()}" else "Aspecto editado — ${descripcion.trim()}",
-            descripcion = "Matriz: ${_matrices.find { it.id == matrizId }?.area ?: matrizId}",
+            descripcion = "Matriz: ${_matrices.find { it.id == matrizId }?.instalacionId ?: matrizId}",
             autor = usuarioActual,
             modulo = ModuloApp.CRITICIDAD,
             accion = if (aspectoEditandoId == null) TipoAccion.CREAR else TipoAccion.EDITAR
@@ -189,7 +189,7 @@ class CriticidadViewModel : ViewModel() {
         val matriz = _matrices.find { it.id == matrizId } ?: return
         val asp = matriz.aspectos.find { it.id == aspectoId }
         val nuevaMatriz = MatrizAspectos(
-            id = matriz.id, area = matriz.area, actividad = matriz.actividad,
+            id = matriz.id, instalacionId = matriz.instalacionId, actividad = matriz.actividad,
             fechaRegistro = matriz.fechaRegistro, estado = matriz.estado
         )
         matriz.aspectos.filter { it.id != aspectoId }.forEach { nuevaMatriz.agregarAspecto(it) }
@@ -198,7 +198,7 @@ class CriticidadViewModel : ViewModel() {
         asp?.let {
             ActividadRepository.registrar(
                 titulo = "Aspecto eliminado — ${it.descripcion}",
-                descripcion = "Matriz: ${matriz.area}",
+                descripcion = "Matriz: ${matriz.instalacionId}",
                 autor = usuarioActual,
                 modulo = ModuloApp.CRITICIDAD,
                 accion = TipoAccion.ELIMINAR

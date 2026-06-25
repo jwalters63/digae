@@ -93,8 +93,8 @@ fun SupervisionScreen(
         NuevaSupervisionSheet(
             supervisionExistente = sup,
             onDismiss = viewModel::cerrarFormSupervision,
-            onGuardar = { area, tipo, estado, supervisor ->
-                viewModel.guardarSupervision(area, tipo, estado, supervisor)
+            onGuardar = { instalacionId, tipo, estado, supervisor ->
+                viewModel.guardarSupervision(instalacionId, tipo, estado, supervisor)
             }
         )
     }
@@ -102,7 +102,7 @@ fun SupervisionScreen(
     supParaEliminar?.let { sup ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Supervisión",
-            mensaje = "¿Eliminar la supervisión de \"${sup.area}\"? Esta acción no se puede deshacer.",
+            mensaje = "¿Eliminar la supervisión de la instalación seleccionada? Esta acción no se puede deshacer.",
             onConfirmar = { viewModel.eliminarSupervision(sup.id); supParaEliminar = null },
             onCancelar = { supParaEliminar = null }
         )
@@ -285,7 +285,7 @@ private fun SupervisionCard(
                     Icon(tipoSupIcono(supervision.tipo), null, tint = FigmaBluePrimary, modifier = Modifier.size(22.dp))
                 }
                 Column {
-                    Text(supervision.area, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
+                    Text(supervision.instalacionId, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
                     Text(supervision.tipo.label, color = FigmaTextSecondary, fontSize = 12.sp)
                 }
             }
@@ -413,7 +413,7 @@ fun SupervisionDetalleScreen(
                     Column {
                         Text("Ítems de Supervisión", fontWeight = FontWeight.SemiBold,
                             color = Color.White, fontSize = 18.sp)
-                        Text(supervision?.area ?: "", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
+                        Text("Instalación ID: ${supervision?.instalacionId ?: ""}", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
                     }
                 },
                 navigationIcon = {

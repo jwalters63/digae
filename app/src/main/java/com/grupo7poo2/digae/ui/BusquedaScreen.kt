@@ -48,7 +48,7 @@ fun BusquedaScreen(
     val matricesFiltradas = remember(q, criticidadState.matrices) {
         if (q.isBlank()) emptyList()
         else criticidadState.matrices.filter {
-            it.area.contains(q, ignoreCase = true) ||
+            it.instalacionId.contains(q, ignoreCase = true) ||
             it.actividad.contains(q, ignoreCase = true) ||
             it.id.contains(q, ignoreCase = true)
         }
@@ -57,7 +57,7 @@ fun BusquedaScreen(
     val supervisionesFiltradas = remember(q, supervisionState.supervisiones) {
         if (q.isBlank()) emptyList()
         else supervisionState.supervisiones.filter {
-            it.area.contains(q, ignoreCase = true) ||
+            it.instalacionId.contains(q, ignoreCase = true) ||
             it.supervisor.contains(q, ignoreCase = true) ||
             it.tipo.label.contains(q, ignoreCase = true) ||
             it.id.contains(q, ignoreCase = true)
@@ -67,7 +67,7 @@ fun BusquedaScreen(
     val bitacorasFiltradas = remember(q, trazabilidadState.bitacoras) {
         if (q.isBlank()) emptyList()
         else trazabilidadState.bitacoras.filter {
-            it.area.contains(q, ignoreCase = true) ||
+            it.instalacionId.contains(q, ignoreCase = true) ||
             it.empresa.contains(q, ignoreCase = true) ||
             it.responsable.contains(q, ignoreCase = true) ||
             it.id.contains(q, ignoreCase = true)
@@ -145,7 +145,7 @@ fun BusquedaScreen(
                         item { TituloSeccion("CRITICIDAD AMBIENTAL", FigmaGreenPrimary) }
                         items(matricesFiltradas) { matriz ->
                             ResultadoItemCard(
-                                titulo = matriz.area,
+                                titulo = matriz.instalacionId,
                                 subtitulo = matriz.actividad,
                                 badge = "Matriz de Impactos",
                                 badgeColor = FigmaGreenPrimary,
@@ -158,7 +158,7 @@ fun BusquedaScreen(
                         item { TituloSeccion("SUPERVISIÓN EN CAMPO", FigmaBluePrimary) }
                         items(supervisionesFiltradas) { sup ->
                             ResultadoItemCard(
-                                titulo = sup.area,
+                                titulo = sup.instalacionId,
                                 subtitulo = sup.supervisor,
                                 badge = sup.tipo.label,
                                 badgeColor = FigmaBluePrimary,
@@ -171,7 +171,7 @@ fun BusquedaScreen(
                         item { TituloSeccion("TRAZABILIDAD DE RESIDUOS", FigmaTealPrimary) }
                         items(bitacorasFiltradas) { bit ->
                             ResultadoItemCard(
-                                titulo = bit.area,
+                                titulo = bit.instalacionId,
                                 subtitulo = bit.empresa,
                                 badge = "Bitácora",
                                 badgeColor = FigmaTealPrimary,

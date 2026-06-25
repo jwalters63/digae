@@ -32,7 +32,7 @@ enum class UnidadPeso(val label: String) {
 
 class BitacoraResiduos(
     val id: String,
-    val area: String,
+    val instalacionId: String,
     val empresa: String,
     val responsable: String,
     val fecha: Date = Date(),
@@ -57,7 +57,7 @@ class BitacoraResiduos(
         _residuos.groupBy { it.tipo }.mapValues { it.value.size }
 
     fun generarReporte(): String =
-        "Bitácora $id — Área: $area — ${_residuos.size} residuos — ${"%,.2f".format(pesoTotalKg())} kg"
+        "Bitácora $id — ID Instalación: $instalacionId — ${_residuos.size} residuos — ${"%,.2f".format(pesoTotalKg())} kg"
 
     fun fechaFormateada(): String =
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(fecha)

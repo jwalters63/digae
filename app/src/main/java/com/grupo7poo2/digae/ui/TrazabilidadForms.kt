@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
@@ -27,16 +28,20 @@ import com.grupo7poo2.digae.ui.theme.*
 fun NuevaBitacoraSheet(
     bitacoraExistente: BitacoraResiduos? = null,
     onDismiss: () -> Unit,
-    onGuardar: (area: String, empresa: String, responsable: String, estado: EstadoBitacora) -> Unit
+    onGuardar: (instalacionId: String, empresa: String, responsable: String, estado: EstadoBitacora) -> Unit
 ) {
-    var area        by remember { mutableStateOf(bitacoraExistente?.area ?: "") }
+    var instalacionId by remember { mutableStateOf(bitacoraExistente?.instalacionId ?: "") }
     var empresa     by remember { mutableStateOf(bitacoraExistente?.empresa ?: "") }
     var responsable by remember { mutableStateOf(bitacoraExistente?.responsable ?: "") }
     var estado      by remember { mutableStateOf(bitacoraExistente?.estado ?: EstadoBitacora.BORRADOR) }
     var estadoExp   by remember { mutableStateOf(false) }
+    var instalacionExp by remember { mutableStateOf(false) }
 
+    val instalaciones by InstalacionRepository.instalaciones.collectAsStateWithLifecycle()
+
+    val instalacionNombre = instalaciones.find { it.id == instalacionId }?.nombre ?: ""
     val esEdicion = bitacoraExistente != null
-    val valido    = area.isNotBlank() && empresa.isNotBlank() && responsable.isNotBlank()
+    val valido    = instalacionId.isNotBlank() && empresa.isNotBlank() && responsable.isNotBlank()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -67,8 +72,30 @@ fun NuevaBitacoraSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            FormField("Área / Sede generadora", area, { area = it },
-                "Ej. Facultad de Ingeniería", Icons.Outlined.Business, FigmaTealPrimary)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Área / Sede generadora", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
+                ExposedDropdownMenuBox(expanded = instalacionExp, onExpandedChange = { instalacionExp = it }) {
+                    OutlinedTextField(
+                        value = instalacionNombre, onValueChange = {}, readOnly = true,
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        placeholder = { Text("Selecciona una sede", color = FigmaTextLight) },
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = { Icon(Icons.Outlined.Business, null, tint = FigmaTextLight, modifier = Modifier.size(20.dp)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = instalacionExp) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = FigmaTealPrimary, unfocusedBorderColor = Color(0xFFD0D5D0))
+                    )
+                    ExposedDropdownMenu(expanded = instalacionExp, onDismissRequest = { instalacionExp = false }, containerColor = Color.White) {
+                        if (instalaciones.isEmpty()) {
+                            DropdownMenuItem(text = { Text("No hay sedes registradas", color = FigmaTextLight) }, onClick = { instalacionExp = false })
+                        } else {
+                            instalaciones.forEach { inst ->
+                                DropdownMenuItem(text = { Text(inst.nombre) }, onClick = { instalacionId = inst.id; instalacionExp = false })
+                            }
+                        }
+                    }
+                }
+            }
 
             FormField("Empresa recolectora", empresa, { empresa = it },
                 "Razón social de la empresa", Icons.Outlined.LocalShipping, FigmaTealPrimary)
@@ -100,7 +127,7 @@ fun NuevaBitacoraSheet(
                 OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = FigmaTextSecondary)) { Text("Cancelar") }
-                Button(onClick = { if (valido) onGuardar(area, empresa, responsable, estado) },
+                Button(onClick = { if (valido) onGuardar(instalacionId, empresa, responsable, estado) },
                     enabled = valido, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = FigmaTealPrimary)) {
                     Icon(Icons.Outlined.Save, null, modifier = Modifier.size(18.dp))

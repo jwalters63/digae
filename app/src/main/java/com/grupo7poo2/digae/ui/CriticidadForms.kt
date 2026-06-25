@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
@@ -28,17 +29,20 @@ import com.grupo7poo2.digae.ui.theme.*
 fun NuevaMatrizSheet(
     matrizExistente: MatrizAspectos? = null,
     onDismiss: () -> Unit,
-    onGuardar: (area: String, actividad: String, estado: EstadoMatriz) -> Unit
+    onGuardar: (instalacionId: String, actividad: String, estado: EstadoMatriz) -> Unit
 ) {
-    var area by remember { mutableStateOf(matrizExistente?.area ?: "") }
+    var instalacionId by remember { mutableStateOf(matrizExistente?.instalacionId ?: "") }
     var actividad by remember { mutableStateOf(matrizExistente?.actividad ?: "") }
     var estado by remember { mutableStateOf(matrizExistente?.estado ?: EstadoMatriz.BORRADOR) }
     var estadoExpanded by remember { mutableStateOf(false) }
+    var instalacionExpanded by remember { mutableStateOf(false) }
+    val instalaciones by InstalacionRepository.instalaciones.collectAsStateWithLifecycle()
 
     val esEdicion = matrizExistente != null
     val titulo = if (esEdicion) "Editar Matriz" else "Nueva Matriz"
 
-    val areaValida = area.isNotBlank()
+    val instalacionNombre = instalaciones.find { it.id == instalacionId }?.nombre ?: ""
+    val areaValida = instalacionId.isNotBlank()
     val actividadValida = actividad.isNotBlank()
 
     ModalBottomSheet(
@@ -73,24 +77,48 @@ fun NuevaMatrizSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Campo: Área / Facultad
+            // Campo: Área / Instalación (Dropdown)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Área / Facultad", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
-                OutlinedTextField(
-                    value = area,
-                    onValueChange = { area = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Ej. Facultad de Ingeniería", color = FigmaTextLight) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FigmaGreenPrimary,
-                        unfocusedBorderColor = Color(0xFFD0D5D0),
-                        focusedLabelColor = FigmaGreenPrimary
-                    ),
-                    leadingIcon = { Icon(Icons.Outlined.Business, contentDescription = null, tint = FigmaTextLight, modifier = Modifier.size(20.dp)) },
-                    isError = area.isNotEmpty() && !areaValida
-                )
+                Text("Área / Instalación", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
+                ExposedDropdownMenuBox(
+                    expanded = instalacionExpanded,
+                    onExpandedChange = { instalacionExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = instalacionNombre,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        placeholder = { Text("Selecciona una instalación", color = FigmaTextLight) },
+                        shape = RoundedCornerShape(12.dp),
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = instalacionExpanded) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = FigmaGreenPrimary,
+                            unfocusedBorderColor = Color(0xFFD0D5D0)
+                        ),
+                        leadingIcon = { Icon(Icons.Outlined.Business, contentDescription = null, tint = FigmaTextLight, modifier = Modifier.size(20.dp)) },
+                        isError = instalacionId.isEmpty() && !areaValida
+                    )
+                    ExposedDropdownMenu(
+                        expanded = instalacionExpanded,
+                        onDismissRequest = { instalacionExpanded = false },
+                        containerColor = Color.White
+                    ) {
+                        if (instalaciones.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("No hay instalaciones registradas", color = FigmaTextLight) },
+                                onClick = { instalacionExpanded = false }
+                            )
+                        } else {
+                            instalaciones.forEach { inst ->
+                                DropdownMenuItem(
+                                    text = { Text(inst.nombre) },
+                                    onClick = { instalacionId = inst.id; instalacionExpanded = false }
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             // Campo: Actividad
@@ -158,7 +186,11 @@ fun NuevaMatrizSheet(
                 ) { Text("Cancelar") }
 
                 Button(
-                    onClick = { if (areaValida && actividadValida) onGuardar(area, actividad, estado) },
+                    onClick = {
+                        if (areaValida && actividadValida) {
+                            onGuardar(instalacionId, actividad, estado)
+                        }
+                    },
                     enabled = areaValida && actividadValida,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),

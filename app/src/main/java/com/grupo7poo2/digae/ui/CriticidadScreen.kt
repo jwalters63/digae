@@ -83,8 +83,8 @@ fun CriticidadScreen(
         NuevaMatrizSheet(
             matrizExistente = matrizExistente,
             onDismiss = viewModel::cerrarFormMatriz,
-            onGuardar = { area, actividad, estado ->
-                viewModel.guardarMatriz(area, actividad, estado)
+            onGuardar = { instalacionId, actividad, estado ->
+                viewModel.guardarMatriz(instalacionId, actividad, estado)
             }
         )
     }
@@ -93,7 +93,7 @@ fun CriticidadScreen(
     matrizParaEliminar?.let { matriz ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Matriz",
-            mensaje = "¿Eliminar la matriz de \"${matriz.area}\"? Esta acción no se puede deshacer.",
+            mensaje = "¿Eliminar la matriz de la instalación seleccionada? Esta acción no se puede deshacer.",
             onConfirmar = {
                 viewModel.eliminarMatriz(matriz.id)
                 matrizParaEliminar = null
@@ -274,7 +274,7 @@ private fun MatrizCard(
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(matriz.area, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
+                Text(matriz.instalacionId, fontWeight = FontWeight.SemiBold, color = FigmaTextPrimary, fontSize = 14.sp)
                 Spacer(Modifier.height(2.dp))
                 Text(matriz.actividad, color = FigmaTextSecondary, fontSize = 12.sp, lineHeight = 16.sp)
             }
@@ -415,7 +415,7 @@ fun CriticidadDetalleScreen(
                     Column {
                         Text("Aspectos Ambientales", fontWeight = FontWeight.SemiBold,
                             color = Color.White, fontSize = 18.sp)
-                        Text(matriz?.area ?: "", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
+                        Text("Instalación ID: ${matriz?.instalacionId ?: ""}", color = Color.White.copy(alpha = 0.75f), fontSize = 12.sp)
                     }
                 },
                 navigationIcon = {

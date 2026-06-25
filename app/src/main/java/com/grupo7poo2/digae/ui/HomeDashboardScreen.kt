@@ -64,7 +64,8 @@ fun HomeDashboardScreen(
     onModulo2Click: () -> Unit = {},
     onModulo3Click: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
-    onNavigateToAlertas: () -> Unit = {}
+    onNavigateToAlertas: () -> Unit = {},
+    onNavigateToInstalaciones: () -> Unit = {}
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -79,9 +80,13 @@ fun HomeDashboardScreen(
                 drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
                 modifier = Modifier.width(280.dp)
             ) {
-                DrawerContent {
-                    scope.launch { drawerState.close() }
-                }
+                DrawerContent(
+                    onClose = { scope.launch { drawerState.close() } },
+                    onNavigateToInstalaciones = {
+                        scope.launch { drawerState.close() }
+                        onNavigateToInstalaciones()
+                    }
+                )
             }
         }
     ) {
@@ -448,7 +453,7 @@ fun BottomNavBar(activeNav: Int, onNavSelected: (Int) -> Unit) {
 }
 
 @Composable
-fun DrawerContent(onClose: () -> Unit) {
+fun DrawerContent(onClose: () -> Unit, onNavigateToInstalaciones: () -> Unit = {}) {
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .background(FigmaGreenPrimary)
@@ -498,7 +503,9 @@ fun DrawerContent(onClose: () -> Unit) {
                         .padding(horizontal = 8.dp)
                         .clip(RoundedCornerShape(50))
                         .background(if (isActive) FigmaGreenLight else Color.Transparent)
-                        .clickable { }
+                        .clickable {
+                            if (index == 2) onNavigateToInstalaciones()
+                        }
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

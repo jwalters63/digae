@@ -107,7 +107,7 @@ fun AlertasScreen(
                         item { TituloSeccion("MATRICES CRÍTICAS", Color(0xFFC62828)) }
                         items(matricesAlerta) { matriz ->
                             AlertaItemCard(
-                                titulo = matriz.area,
+                                titulo = matriz.instalacionId,
                                 subtitulo = matriz.actividad,
                                 badge = "Impacto Crítico/Alto detectado",
                                 icon = Icons.Outlined.Assessment,
@@ -121,7 +121,7 @@ fun AlertasScreen(
                         item { TituloSeccion("AUDITORÍAS CON INCUMPLIMIENTOS", Color(0xFFE65100)) } // Naranja oscuro
                         items(supervisionesAlerta) { sup ->
                             AlertaItemCard(
-                                titulo = sup.area,
+                                titulo = sup.instalacionId,
                                 subtitulo = "Supervisor: ${sup.supervisor}",
                                 badge = "Ítems evaluados como NO CUMPLE",
                                 icon = Icons.Outlined.FactCheck,
@@ -135,7 +135,7 @@ fun AlertasScreen(
                         item { TituloSeccion("RESIDUOS PELIGROSOS", Color(0xFFB71C1C)) }
                         items(bitacorasAlerta) { bit ->
                             AlertaItemCard(
-                                titulo = bit.area,
+                                titulo = bit.instalacionId,
                                 subtitulo = bit.empresa,
                                 badge = "Contiene cargas peligrosas",
                                 icon = Icons.Outlined.Warning,

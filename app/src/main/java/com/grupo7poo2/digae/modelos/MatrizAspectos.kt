@@ -57,7 +57,7 @@ class MotorCalculoPonderado : CalculoCriticidadStrategy {
 
 class MatrizAspectos(
     val id: String,
-    val area: String,
+    val instalacionId: String,
     val actividad: String,
     val fechaRegistro: Date,
     var estado: EstadoMatriz = EstadoMatriz.BORRADOR

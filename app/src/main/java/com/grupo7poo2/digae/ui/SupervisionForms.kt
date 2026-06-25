@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
@@ -26,17 +27,21 @@ import com.grupo7poo2.digae.ui.theme.*
 fun NuevaSupervisionSheet(
     supervisionExistente: Supervision? = null,
     onDismiss: () -> Unit,
-    onGuardar: (area: String, tipo: TipoSupervision, estado: EstadoSupervision, supervisor: String) -> Unit
+    onGuardar: (instalacionId: String, tipo: TipoSupervision, estado: EstadoSupervision, supervisor: String) -> Unit
 ) {
-    var area       by remember { mutableStateOf(supervisionExistente?.area ?: "") }
+    var instalacionId by remember { mutableStateOf(supervisionExistente?.instalacionId ?: "") }
     var supervisor by remember { mutableStateOf(supervisionExistente?.supervisor ?: "") }
     var tipo       by remember { mutableStateOf(supervisionExistente?.tipo ?: TipoSupervision.INFRAESTRUCTURA) }
     var estado     by remember { mutableStateOf(supervisionExistente?.estado ?: EstadoSupervision.PROGRAMADA) }
     var tipoExp    by remember { mutableStateOf(false) }
     var estadoExp  by remember { mutableStateOf(false) }
+    var instalacionExp by remember { mutableStateOf(false) }
 
+    val instalaciones by InstalacionRepository.instalaciones.collectAsStateWithLifecycle()
+
+    val instalacionNombre = instalaciones.find { it.id == instalacionId }?.nombre ?: ""
     val esEdicion = supervisionExistente != null
-    val valido    = area.isNotBlank() && supervisor.isNotBlank()
+    val valido    = instalacionId.isNotBlank() && supervisor.isNotBlank()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -68,17 +73,30 @@ fun NuevaSupervisionSheet(
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
             // Área / Instalación
+            // Área / Instalación
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Área / Instalación", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
-                OutlinedTextField(
-                    value = area, onValueChange = { area = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Ej. Laboratorio de Biología Marina", color = FigmaTextLight) },
-                    singleLine = true, shape = RoundedCornerShape(12.dp),
-                    leadingIcon = { Icon(Icons.Outlined.Business, null, tint = FigmaTextLight, modifier = Modifier.size(20.dp)) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FigmaBluePrimary, unfocusedBorderColor = Color(0xFFD0D5D0))
-                )
+                ExposedDropdownMenuBox(expanded = instalacionExp, onExpandedChange = { instalacionExp = it }) {
+                    OutlinedTextField(
+                        value = instalacionNombre, onValueChange = {}, readOnly = true,
+                        modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        placeholder = { Text("Selecciona una instalación", color = FigmaTextLight) },
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = { Icon(Icons.Outlined.Business, null, tint = FigmaTextLight, modifier = Modifier.size(20.dp)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = instalacionExp) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = FigmaBluePrimary, unfocusedBorderColor = Color(0xFFD0D5D0))
+                    )
+                    ExposedDropdownMenu(expanded = instalacionExp, onDismissRequest = { instalacionExp = false }, containerColor = Color.White) {
+                        if (instalaciones.isEmpty()) {
+                            DropdownMenuItem(text = { Text("No hay instalaciones registradas", color = FigmaTextLight) }, onClick = { instalacionExp = false })
+                        } else {
+                            instalaciones.forEach { inst ->
+                                DropdownMenuItem(text = { Text(inst.nombre) }, onClick = { instalacionId = inst.id; instalacionExp = false })
+                            }
+                        }
+                    }
+                }
             }
 
             // Supervisor
@@ -144,7 +162,7 @@ fun NuevaSupervisionSheet(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = FigmaTextSecondary)) {
                     Text("Cancelar")
                 }
-                Button(onClick = { if (valido) onGuardar(area, tipo, estado, supervisor) },
+                Button(onClick = { if (valido) onGuardar(instalacionId, tipo, estado, supervisor) },
                     enabled = valido, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = FigmaBluePrimary)) {
                     Icon(Icons.Outlined.Save, null, modifier = Modifier.size(18.dp))

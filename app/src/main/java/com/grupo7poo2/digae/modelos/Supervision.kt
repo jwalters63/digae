@@ -39,7 +39,7 @@ enum class ResultadoSupervision(val label: String) {
 
 class Supervision(
     val id: String,
-    val area: String,
+    val instalacionId: String,
     val tipo: TipoSupervision,
     val fecha: Date,
     val supervisor: String,           // Nombre del supervisor (simplificado)
@@ -81,7 +81,7 @@ class Supervision(
         _items.filter { it.resultado == ResultadoSupervision.NO_CUMPLE }
 
     fun generarReporte(): String =
-        "Supervisión ${id} — Área: $area — Cumplimiento: ${"%.1f".format(porcentajeCumplimiento())}%"
+        "Supervisión ${id} — ID Instalación: $instalacionId — Cumplimiento: ${"%.1f".format(porcentajeCumplimiento())}%"
 
     fun fechaFormateada(): String =
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(fecha)

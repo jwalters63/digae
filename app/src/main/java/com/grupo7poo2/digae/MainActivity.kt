@@ -11,7 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.grupo7poo2.digae.ui.AlertasScreen
+import com.grupo7poo2.digae.ui.AlertasScreen
 import com.grupo7poo2.digae.ui.BusquedaScreen
+import com.grupo7poo2.digae.ui.InstalacionesScreen
 import com.grupo7poo2.digae.ui.CriticidadDetalleScreen
 import com.grupo7poo2.digae.ui.CriticidadScreen
 import com.grupo7poo2.digae.ui.CriticidadViewModel
@@ -64,7 +66,15 @@ class MainActivity : ComponentActivity() {
                                 popUpTo("dashboard") { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
-                            } }
+                            } },
+                            onNavigateToInstalaciones = { navController.navigate("instalaciones") }
+                        )
+                    }
+
+                    // ── Catálogo de Instalaciones ─────────────────────────────
+                    composable("instalaciones") {
+                        InstalacionesScreen(
+                            onBack = { navController.popBackStack() }
                         )
                     }
 
