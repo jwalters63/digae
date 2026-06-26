@@ -36,8 +36,15 @@ public class MatrizAspectosServiceImpl implements MatrizAspectosService {
         Facultad facultad = facultadRepository.findById(dto.getFacultadId())
                 .orElseThrow(() -> new ResourceNotFoundException("Facultad", "id", dto.getFacultadId()));
         
-        Administrador admin = (Administrador) usuarioRepository.findById(dto.getCreadoPorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Administrador", "id", dto.getCreadoPorId()));
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        com.digae.sga.entity.Usuario currentUser = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        if (!(currentUser instanceof Administrador)) {
+            throw new IllegalArgumentException("Solo los administradores pueden crear matrices");
+        }
+
+        Administrador admin = (Administrador) currentUser;
 
         MatrizAspectos matriz = MatrizAspectosMapper.toEntity(dto, facultad, admin);
 
@@ -64,7 +71,23 @@ public class MatrizAspectosServiceImpl implements MatrizAspectosService {
     @Override
     @Transactional(readOnly = true)
     public List<MatrizAspectosResponseDTO> findAll() {
-        return matrizRepository.findAll().stream()
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        com.digae.sga.entity.Usuario currentUser = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        List<MatrizAspectos> matrices;
+        if (currentUser instanceof com.digae.sga.entity.UsuarioOperativo) {
+            com.digae.sga.entity.UsuarioOperativo uo = (com.digae.sga.entity.UsuarioOperativo) currentUser;
+            // Solo retornar las de su facultad
+            matrices = matrizRepository.findAll().stream()
+                    .filter(m -> m.getFacultad().getId().equals(uo.getFacultad().getId()))
+                    .collect(Collectors.toList());
+        } else {
+            // Administrador ve todas
+            matrices = matrizRepository.findAll();
+        }
+
+        return matrices.stream()
                 .map(MatrizAspectosMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }

@@ -35,7 +35,9 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
 
     @Override
     public BitacoraResiduoResponseDTO crearRegistro(BitacoraResiduoRequestDTO requestDTO) {
-        Usuario usuario = resolverUsuario(requestDTO.getUsuarioId());
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
 
         BitacoraResiduo bitacora = BitacoraResiduoMapper.toEntity(requestDTO, usuario);
         BitacoraResiduo savedBitacora = bitacoraRepository.save(bitacora);
@@ -55,8 +57,21 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
     @Override
     @Transactional(readOnly = true)
     public List<BitacoraResiduoResponseDTO> obtenerTodosLosRegistros() {
-        return bitacoraRepository.findAll()
-                .stream()
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario currentUser = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        List<BitacoraResiduo> registros = bitacoraRepository.findAll();
+        
+        if (currentUser instanceof com.digae.sga.entity.UsuarioOperativo) {
+            com.digae.sga.entity.UsuarioOperativo uo = (com.digae.sga.entity.UsuarioOperativo) currentUser;
+            registros = registros.stream()
+                    .filter(b -> b.getUsuario() instanceof com.digae.sga.entity.UsuarioOperativo 
+                            && ((com.digae.sga.entity.UsuarioOperativo)b.getUsuario()).getFacultad().getId().equals(uo.getFacultad().getId()))
+                    .collect(Collectors.toList());
+        }
+
+        return registros.stream()
                 .map(BitacoraResiduoMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -69,7 +84,9 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
         BitacoraResiduo bitacora = bitacoraRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("BitacoraResiduo", "id", id));
 
-        Usuario usuario = resolverUsuario(requestDTO.getUsuarioId());
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
 
         BitacoraResiduoMapper.updateEntityFromDTO(requestDTO, bitacora, usuario);
         BitacoraResiduo updatedBitacora = bitacoraRepository.save(bitacora);

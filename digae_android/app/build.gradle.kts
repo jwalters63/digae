@@ -66,4 +66,7 @@ dependencies {
 
     // ViewModel Ktx (viewModelScope)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
+
+    // Security Crypto for EncryptedSharedPreferences
+    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
 }

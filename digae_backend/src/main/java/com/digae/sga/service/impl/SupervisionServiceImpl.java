@@ -34,7 +34,13 @@ public class SupervisionServiceImpl implements SupervisionService {
 
     @Override
     public SupervisionResponseDTO crearSupervision(SupervisionRequestDTO requestDTO) {
-        Usuario inspector = resolverInspector(requestDTO.getInspectorId());
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario inspector = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        if (!(inspector instanceof com.digae.sga.entity.Administrador)) {
+            throw new IllegalArgumentException("Solo los administradores pueden crear supervisiones");
+        }
 
         Supervision supervision = SupervisionMapper.toEntity(requestDTO, inspector);
         Supervision savedSupervision = supervisionRepository.save(supervision);
@@ -54,6 +60,17 @@ public class SupervisionServiceImpl implements SupervisionService {
     @Override
     @Transactional(readOnly = true)
     public List<SupervisionResponseDTO> obtenerTodasLasSupervisiones() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario currentUser = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        if (!(currentUser instanceof com.digae.sga.entity.Administrador)) {
+            // Operativos cannot see supervisiones based on doc: only Admin can do it.
+            // If they can see it, maybe they can only see their own area.
+            // The doc says: Administrador puede "ejecutar y editar supervisiones de campo". Operativo no tiene acceso a este módulo.
+            throw new IllegalArgumentException("Solo los administradores pueden acceder a supervisiones");
+        }
+
         return supervisionRepository.findAll()
                 .stream()
                 .map(SupervisionMapper::toResponseDTO)
@@ -80,7 +97,13 @@ public class SupervisionServiceImpl implements SupervisionService {
         Supervision supervision = supervisionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supervision", "id", id));
 
-        Usuario inspector = resolverInspector(requestDTO.getInspectorId());
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario inspector = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
+
+        if (!(inspector instanceof com.digae.sga.entity.Administrador)) {
+            throw new IllegalArgumentException("Solo los administradores pueden editar supervisiones");
+        }
 
         SupervisionMapper.updateEntityFromDTO(requestDTO, supervision, inspector);
         Supervision updatedSupervision = supervisionRepository.save(supervision);

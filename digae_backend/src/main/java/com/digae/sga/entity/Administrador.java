@@ -1,5 +1,6 @@
 package com.digae.sga.entity;
 
+import com.digae.sga.entity.enums.RolUsuario;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -15,4 +16,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Administrador extends Usuario {
     // El administrador tiene acceso global, no requiere estar atado a una facultad
+
+    @Override
+    public RolUsuario getRol() {
+        return RolUsuario.ADMINISTRADOR;
+    }
 }

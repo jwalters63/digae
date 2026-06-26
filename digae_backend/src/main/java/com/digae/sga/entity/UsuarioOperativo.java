@@ -1,5 +1,6 @@
 package com.digae.sga.entity;
 
+import com.digae.sga.entity.enums.RolUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,4 +21,9 @@ public class UsuarioOperativo extends Usuario {
     @JoinColumn(name = "facultad_id", nullable = false, 
             foreignKey = @ForeignKey(name = "fk_usuario_operativo_facultad"))
     private Facultad facultad;
+
+    @Override
+    public RolUsuario getRol() {
+        return RolUsuario.OPERATIVO;
+    }
 }

@@ -29,6 +29,7 @@ import com.grupo7poo2.digae.ui.theme.DIGAETheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.grupo7poo2.digae.network.RetrofitClient.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             DIGAETheme {
