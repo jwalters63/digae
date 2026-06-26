@@ -38,7 +38,6 @@ fun AlertasScreen(
     val supervisionState by supervisionViewModel.uiState.collectAsStateWithLifecycle()
     val trazabilidadState by trazabilidadViewModel.uiState.collectAsStateWithLifecycle()
 
-    // Lógica de filtrado de Alertas
     val matricesAlerta = remember(criticidadState.matrices) {
         criticidadState.matrices.filter { m ->
             m.aspectosCriticos().isNotEmpty()
@@ -67,12 +66,11 @@ fun AlertasScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            
-            // Header: Título de Alertas
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFB71C1C)) // Rojo Oscuro para Alertas
+                    .background(Color(0xFFB71C1C)) 
                     .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 20.dp)
             ) {
                 Row(
@@ -118,7 +116,7 @@ fun AlertasScreen(
                     }
 
                     if (supervisionesAlerta.isNotEmpty()) {
-                        item { TituloSeccion("AUDITORÍAS CON INCUMPLIMIENTOS", Color(0xFFE65100)) } // Naranja oscuro
+                        item { TituloSeccion("AUDITORÍAS CON INCUMPLIMIENTOS", Color(0xFFE65100)) } 
                         items(supervisionesAlerta) { sup ->
                             AlertaItemCard(
                                 titulo = sup.instalacionId,
@@ -218,7 +216,7 @@ fun SpikesSeparatorColor(color: Color) {
             val spikeCount = 12
             val spikeWidth = size.width / spikeCount
             for (i in 0 until spikeCount) {
-                lineTo(spikeWidth * i + spikeWidth / 2f, size.height * 0.8f) // Pico hacia abajo
+                lineTo(spikeWidth * i + spikeWidth / 2f, size.height * 0.8f) 
                 lineTo(spikeWidth * (i + 1), 0f)
             }
             lineTo(size.width, size.height)

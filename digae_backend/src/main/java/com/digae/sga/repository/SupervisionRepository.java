@@ -7,10 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Repositorio JPA para la entidad Supervision.
- * Provee queries por inspector y rangos de fecha.
- */
 @Repository
 public interface SupervisionRepository extends JpaRepository<Supervision, Long> {
 

@@ -1,7 +1,10 @@
 package com.grupo7poo2.digae.ui
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.grupo7poo2.digae.network.auth.SessionManager
 import com.grupo7poo2.digae.modelos.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +14,6 @@ import java.util.Date
 import java.util.UUID
 import kotlinx.coroutines.launch
 
-// ─── Estado de la UI ──────────────────────────────────────────────────────────
 data class SupervisionUiState(
     val supervisiones: List<Supervision> = emptyList(),
     val isLoading: Boolean = false,
@@ -22,14 +24,16 @@ data class SupervisionUiState(
     val itemEditandoId: String? = null
 )
 
-// ─── ViewModel ────────────────────────────────────────────────────────────────
-class SupervisionViewModel : ViewModel() {
+class SupervisionViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val sessionManager = SessionManager(application)
+    val userRole = sessionManager.fetchUserRole()
 
     private val _uiState = MutableStateFlow(SupervisionUiState(isLoading = true))
     val uiState: StateFlow<SupervisionUiState> = _uiState.asStateFlow()
 
     private val _supervisiones = mutableListOf<Supervision>()
-    private val usuarioActual = "Lic. Marco Torres"
+    private val usuarioActual = "Usuario Actual"
 
     init {
         cargarDatosDesdeRed()
@@ -52,7 +56,7 @@ class SupervisionViewModel : ViewModel() {
                         Supervision(
                             id = dto.id.toString(),
                             instalacionId = dto.areaInspeccionada,
-                            tipo = TipoSupervision.INFRAESTRUCTURA, // hardcodeado visual por ahora
+                            tipo = TipoSupervision.INFRAESTRUCTURA, 
                             fecha = fechaParsed,
                             supervisor = dto.inspectorNombreCompleto ?: "Sin supervisor",
                             estado = EstadoSupervision.COMPLETADA
@@ -75,8 +79,6 @@ class SupervisionViewModel : ViewModel() {
             }
         }
     }
-
-    // ─── CRUD: Supervisiones ──────────────────────────────────────────────────
 
     fun abrirFormNuevaSupervision() {
         _uiState.update { it.copy(mostrarNuevaSupervision = true, supervisionSeleccionadaId = null) }
@@ -102,15 +104,15 @@ class SupervisionViewModel : ViewModel() {
                         areaInspeccionada = instalacionId,
                         calificacionGeneral = 10.0,
                         observaciones = null,
-                        inspectorId = 1L, // hardcoded
-                        items = emptyList() // TODO: recolectar items reales
+                        inspectorId = sessionManager.fetchUserId().takeIf { it != -1L } ?: 1L,
+                        items = emptyList() 
                     )
                     val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.crearSupervision(request)
                     if (!response.isSuccessful) {
                         println("Error al crear supervisión: ${response.code()}")
                     }
                 }
-                
+
                 ActividadRepository.registrar(
                     titulo = if (esNueva) "Nueva supervisión — ${instalacionId.trim()}" else "Supervisión editada — ${instalacionId.trim()}",
                     descripcion = tipo.label,
@@ -142,8 +144,6 @@ class SupervisionViewModel : ViewModel() {
         publicar()
     }
 
-    // ─── CRUD: Ítems ──────────────────────────────────────────────────────────
-
     fun abrirFormNuevoItem(supervisionId: String) {
         _uiState.update { it.copy(mostrarNuevoItem = true, supervisionSeleccionadaId = supervisionId, itemEditandoId = null) }
     }
@@ -168,7 +168,7 @@ class SupervisionViewModel : ViewModel() {
 
         val itemsActualizados = if (itemEditandoId != null) {
             supervision.items.map { if (it.id == itemEditandoId) nuevoItem.also { n ->
-                // Preservar evaluación existente si se edita
+
                 val original = supervision.items.find { i -> i.id == itemEditandoId }
                 if (original?.fueEvaluado == true) n.evaluar(original.resultado, original.observacion)
             } else it }
@@ -204,7 +204,6 @@ class SupervisionViewModel : ViewModel() {
         publicar()
     }
 
-    /** Evalúa un ítem directamente desde la pantalla de detalle */
     fun evaluarItem(supervisionId: String, itemId: String, resultado: ResultadoSupervision, observacion: String? = null) {
         val supervision = _supervisiones.find { it.id == supervisionId } ?: return
         val itemsActualizados = supervision.items.map {
@@ -245,8 +244,6 @@ class SupervisionViewModel : ViewModel() {
     private fun publicar() {
         _uiState.update { it.copy(supervisiones = _supervisiones.toList(), isLoading = false) }
     }
-
-    // ─── Datos semilla ────────────────────────────────────────────────────────
 
     private fun crearSupervisionInfraestructura(): Supervision {
         val s = Supervision("SUP-001", "Facultad de Ciencias", TipoSupervision.INFRAESTRUCTURA,

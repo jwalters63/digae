@@ -16,10 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Implementación del servicio de Bitácora de Residuos.
- * Gestiona el registro de salida de residuos sólidos.
- */
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
@@ -62,7 +58,7 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
 
         List<BitacoraResiduo> registros = bitacoraRepository.findAll();
-        
+
         if (currentUser instanceof com.digae.sga.entity.UsuarioOperativo) {
             com.digae.sga.entity.UsuarioOperativo uo = (com.digae.sga.entity.UsuarioOperativo) currentUser;
             registros = registros.stream()
@@ -75,8 +71,6 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
                 .map(BitacoraResiduoMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     public BitacoraResiduoResponseDTO actualizarRegistro(Long id,
@@ -102,9 +96,6 @@ public class BitacoraResiduoServiceImpl implements BitacoraResiduoService {
         bitacoraRepository.deleteById(id);
     }
 
-    /**
-     * Resuelve el Usuario a partir de su ID, lanzando excepción si no existe.
-     */
     private Usuario resolverUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", usuarioId));

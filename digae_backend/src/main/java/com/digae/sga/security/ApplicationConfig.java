@@ -40,9 +40,6 @@ public class ApplicationConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // En un entorno de desarrollo para probar passwords en texto plano, podemos usar NoOpPasswordEncoder.
-        // Pero lo correcto es BCrypt. Como el seeder insertó "123456", usaremos NoOp para que el login funcione sin re-hashear todo,
-        // o podemos configurar el PasswordEncoder como texto plano temporalmente, PERO lo ideal es usar BCrypt y actualizar el seeder.
         return new BCryptPasswordEncoder();
     }
 }

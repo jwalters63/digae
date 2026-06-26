@@ -15,8 +15,7 @@ public class CriticidadCalculatorImpl implements CriticidadCalculator {
     @Override
     public NivelCriticidad calcularCriticidad(int gravedad, int severidad, int probabilidad) {
         int puntaje = gravedad * severidad * probabilidad;
-        
-        // Asignación de niveles según el puntaje (máximo 125, mínimo 1)
+
         if (puntaje <= 20) {
             return NivelCriticidad.BAJO;
         } else if (puntaje <= 50) {
@@ -31,8 +30,7 @@ public class CriticidadCalculatorImpl implements CriticidadCalculator {
     @Override
     public List<ControlOperacional> sugerirControles(NivelCriticidad nivel) {
         List<ControlOperacional> sugeridos = new ArrayList<>();
-        // Lógica de negocio (simulada) para obtener controles por nivel
-        // En una app real, esto podría consultar un repositorio de controles base.
+
         if (nivel == NivelCriticidad.CRITICO || nivel == NivelCriticidad.ALTO) {
             sugeridos.add(ControlOperacional.builder().descripcion("Plan de contingencia inmediato").build());
             sugeridos.add(ControlOperacional.builder().descripcion("Auditoría externa mensual").build());

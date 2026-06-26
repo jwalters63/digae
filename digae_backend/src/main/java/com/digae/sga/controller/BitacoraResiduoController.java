@@ -11,17 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para la Bitácora de Residuos del sistema DIGAE.
- *
- * Endpoints:
- *   GET    /api/v1/bitacora-residuos                         → Lista todos (200)
- *   GET    /api/v1/bitacora-residuos/{id}                    → Obtiene por ID (200 / 404)
- *   POST   /api/v1/bitacora-residuos                         → Crea registro (201 / 400)
- *   PUT    /api/v1/bitacora-residuos/{id}                    → Actualiza (200 / 400 / 404)
- *   DELETE /api/v1/bitacora-residuos/{id}                    → Elimina (204 / 404)
- *   GET    /api/v1/bitacora-residuos/clasificacion/{tipo}    → Filtra por tipo (200)
- */
 @RestController
 @RequestMapping("/api/v1/bitacora-residuos")
 public class BitacoraResiduoController {

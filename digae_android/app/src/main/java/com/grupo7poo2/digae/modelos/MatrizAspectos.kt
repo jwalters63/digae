@@ -2,8 +2,6 @@ package com.grupo7poo2.digae.modelos
 
 import java.util.Date
 
-// ─── Enumeraciones del dominio ────────────────────────────────────────────────
-
 enum class NivelCriticidad(val label: String, val rangoMin: Double, val rangoMax: Double) {
     BAJA("Baja", 0.0, 19.9),
     MEDIA("Media", 20.0, 59.9),
@@ -35,25 +33,19 @@ enum class EstadoMatriz(val label: String) {
     APROBADA("Aprobada")
 }
 
-// ─── Patrón Strategy: Algoritmo de cálculo de criticidad ─────────────────────
-
 interface CalculoCriticidadStrategy {
     fun calcular(gravedad: Int, severidad: Int, probabilidad: Int): Double
 }
 
-/** Estrategia multiplicativa estándar: G × S × P */
 class MotorCalculoMultiplicativo : CalculoCriticidadStrategy {
     override fun calcular(gravedad: Int, severidad: Int, probabilidad: Int): Double =
         (gravedad * severidad * probabilidad).toDouble()
 }
 
-/** Estrategia ponderada: (G × 0.5) + (S × 0.3) + (P × 0.2) × 10 */
 class MotorCalculoPonderado : CalculoCriticidadStrategy {
     override fun calcular(gravedad: Int, severidad: Int, probabilidad: Int): Double =
         ((gravedad * 0.5) + (severidad * 0.3) + (probabilidad * 0.2)) * 10
 }
-
-// ─── Modelos del módulo: Criticidad Ambiental ─────────────────────────────────
 
 class MatrizAspectos(
     val id: String,
@@ -64,7 +56,6 @@ class MatrizAspectos(
 ) {
     private val _aspectos = mutableListOf<AspectAmbiental>()
 
-    /** Acceso de solo lectura a la lista de aspectos (Encapsulamiento) */
     val aspectos: List<AspectAmbiental> get() = _aspectos.toList()
 
     fun agregarAspecto(aspecto: AspectAmbiental) {
@@ -84,7 +75,7 @@ class MatrizAspectos(
     fun sugerirControlGlobal(): List<ControlOperacional> =
         _aspectos.flatMap { it.controlesAsignados }
 
-    fun guardar() { /* Simulación de persistencia */ }
+    fun guardar() {  }
 }
 
 class AspectAmbiental(
@@ -92,9 +83,9 @@ class AspectAmbiental(
     val descripcion: String,
     val descripcionImpacto: String,
     val tipoAspecto: TipoAspecto,
-    var gravedad: Int,        // 1–5
-    var severidad: Int,       // 1–5
-    var probabilidad: Int,    // 1–5
+    var gravedad: Int,        
+    var severidad: Int,       
+    var probabilidad: Int,    
     private val calculador: CalculoCriticidadStrategy = MotorCalculoMultiplicativo()
 ) {
     private var criticidad: Double = 0.0
@@ -119,6 +110,6 @@ class ControlOperacional(
     val nivelCriticidadRequerido: Double,
     val tipoControl: String
 ) {
-    fun asignarControl() { /* Lógica de asignación */ }
+    fun asignarControl() {  }
     fun validarAplicabilidad(): Boolean = true
 }

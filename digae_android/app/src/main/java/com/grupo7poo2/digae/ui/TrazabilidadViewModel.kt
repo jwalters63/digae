@@ -1,7 +1,10 @@
 package com.grupo7poo2.digae.ui
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.grupo7poo2.digae.network.auth.SessionManager
 import com.grupo7poo2.digae.modelos.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +14,6 @@ import java.util.Date
 import java.util.UUID
 import kotlinx.coroutines.launch
 
-// ─── Estado de la UI ──────────────────────────────────────────────────────────
 data class TrazabilidadUiState(
     val bitacoras: List<BitacoraResiduos> = emptyList(),
     val isLoading: Boolean = false,
@@ -21,16 +23,17 @@ data class TrazabilidadUiState(
     val residuoEditandoId: String? = null
 )
 
-// ─── ViewModel ────────────────────────────────────────────────────────────────
-class TrazabilidadViewModel : ViewModel() {
+class TrazabilidadViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val sessionManager = SessionManager(application)
+    val userRole = sessionManager.fetchUserRole()
 
     private val _uiState = MutableStateFlow(TrazabilidadUiState(isLoading = true))
     val uiState: StateFlow<TrazabilidadUiState> = _uiState.asStateFlow()
 
     private val _bitacoras = mutableListOf<BitacoraResiduos>()
 
-    // Nombre de usuario en sesión (simplificado)
-    private val usuarioActual = "Ing. Andrea Vargas"
+    private val usuarioActual = "Usuario Actual"
 
     init { cargarDatosDesdeRed() }
 
@@ -43,7 +46,7 @@ class TrazabilidadViewModel : ViewModel() {
                     val dtos = response.body() ?: emptyList()
                     _bitacoras.clear()
                     _bitacoras.addAll(dtos.map { dto ->
-                        // Mapeo simple de DTO a modelo de UI
+
                         val df = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
                         val fechaParsed = try {
                             df.parse(dto.fechaRegistro) ?: Date()
@@ -60,15 +63,13 @@ class TrazabilidadViewModel : ViewModel() {
                     })
                 }
             } catch (e: Exception) {
-                // Manejar error de red
+
                 e.printStackTrace()
             } finally {
                 publicar()
             }
         }
     }
-
-    // ─── CRUD: Bitácoras ──────────────────────────────────────────────────────
 
     fun abrirFormNuevaBitacora() {
         _uiState.update { it.copy(mostrarNuevaBitacora = true, bitacoraSeleccionadaId = null) }
@@ -94,15 +95,15 @@ class TrazabilidadViewModel : ViewModel() {
                         areaGeneradora = instalacionId,
                         empresaRecolectora = empresa,
                         observaciones = null,
-                        usuarioId = 1L, // Usuario hardcodeado por ahora
-                        residuos = emptyList() // El DTO pide lista, si se crea vacía puede fallar validación de NotEmpty en backend. Asumimos que se añaden residuos primero en la vista real o enviamos dummy.
+                        usuarioId = sessionManager.fetchUserId().takeIf { it != -1L } ?: 1L,
+                        residuos = emptyList() 
                     )
                     val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.crearRegistroBitacora(request)
                     if (!response.isSuccessful) {
                         println("Error al crear bitácora: ${response.code()}")
                     }
                 }
-                
+
                 ActividadRepository.registrar(
                     titulo = if (esNueva) "Nueva bitácora — $instalacionId" else "Bitácora editada — $instalacionId",
                     descripcion = "Empresa: $empresa",
@@ -133,8 +134,6 @@ class TrazabilidadViewModel : ViewModel() {
         }
         publicar()
     }
-
-    // ─── CRUD: Residuos ───────────────────────────────────────────────────────
 
     fun abrirFormNuevoResiduo(bitacoraId: String) {
         _uiState.update { it.copy(mostrarNuevoResiduo = true, bitacoraSeleccionadaId = bitacoraId, residuoEditandoId = null) }
@@ -211,8 +210,6 @@ class TrazabilidadViewModel : ViewModel() {
     private fun publicar() {
         _uiState.update { it.copy(bitacoras = _bitacoras.toList(), isLoading = false) }
     }
-
-    // ─── Datos semilla ────────────────────────────────────────────────────────
 
     private fun crearBitacoraIngenieria(): BitacoraResiduos {
         val b = BitacoraResiduos("BIT-001", "Facultad de Ingeniería",

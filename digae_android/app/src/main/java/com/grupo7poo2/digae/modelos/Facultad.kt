@@ -5,7 +5,7 @@ class Facultad(
     val nombre: String,
     val coordinador: UsuarioOperativo
 ) {
-    // Relación de agregación: 1 Facultad tiene varios Usuarios Operativos
+
     private val usuariosAsignados = mutableListOf<UsuarioOperativo>()
     private val matrices = mutableListOf<MatrizAspectos>()
     private val bitacoras = mutableListOf<BitacoraResiduos>()

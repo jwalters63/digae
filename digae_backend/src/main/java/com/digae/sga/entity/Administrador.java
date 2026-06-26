@@ -15,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class Administrador extends Usuario {
-    // El administrador tiene acceso global, no requiere estar atado a una facultad
 
     @Override
     public RolUsuario getRol() {

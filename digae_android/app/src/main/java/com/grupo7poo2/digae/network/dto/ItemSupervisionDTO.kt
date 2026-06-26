@@ -8,5 +8,5 @@ data class ItemSupervisionDTO(
     @SerializedName("descripcion")
     val descripcion: String,
     @SerializedName("resultado")
-    val resultado: String // ENUM string (CONFORME, NO_CONFORME, NO_APLICA)
+    val resultado: String 
 )

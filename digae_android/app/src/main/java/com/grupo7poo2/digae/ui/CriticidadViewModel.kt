@@ -1,6 +1,9 @@
 package com.grupo7poo2.digae.ui
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import com.grupo7poo2.digae.network.auth.SessionManager
 import com.grupo7poo2.digae.modelos.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,30 +14,30 @@ import java.util.UUID
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-// ─── Estado de la UI ─────────────────────────────────────────────────────────
 data class CriticidadUiState(
     val matrices: List<MatrizAspectos> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    // Estado de diálogos
+
     val mostrarNuevaMatriz: Boolean = false,
     val mostrarNuevoAspecto: Boolean = false,
     val matrizSeleccionadaId: String? = null,
     val aspectoEditandoId: String? = null
 )
 
-// ─── ViewModel ───────────────────────────────────────────────────────────────
-class CriticidadViewModel : ViewModel() {
+class CriticidadViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val sessionManager = SessionManager(application)
+    val userRole = sessionManager.fetchUserRole()
 
     private val _uiState = MutableStateFlow(CriticidadUiState(isLoading = true))
     val uiState: StateFlow<CriticidadUiState> = _uiState.asStateFlow()
 
     private var estrategia: CalculoCriticidadStrategy = MotorCalculoMultiplicativo()
 
-    // Lista mutable interna de matrices
     private val _matrices = mutableListOf<MatrizAspectos>()
 
-    private val usuarioActual = "Ing. Carlos Medina"
+    private val usuarioActual = "Usuario Actual"
 
     init {
         cargarDatosDesdeRed()
@@ -59,14 +62,14 @@ class CriticidadViewModel : ViewModel() {
                             instalacionId = dto.facultadNombre ?: "Facultad Desconocida",
                             actividad = dto.nombre,
                             fechaRegistro = fechaParsed,
-                            estado = EstadoMatriz.APROBADA // Por defecto visual
+                            estado = EstadoMatriz.APROBADA 
                         )
                         dto.aspectos?.forEach { aspDto ->
                             val asp = AspectAmbiental(
                                 id = aspDto.id.toString(),
                                 descripcion = aspDto.descripcion,
                                 descripcionImpacto = "Impacto General",
-                                tipoAspecto = TipoAspecto.AIRE, // Hardcoded visual default
+                                tipoAspecto = TipoAspecto.AIRE, 
                                 gravedad = aspDto.gravedad,
                                 severidad = aspDto.severidad,
                                 probabilidad = aspDto.probabilidad,
@@ -93,8 +96,6 @@ class CriticidadViewModel : ViewModel() {
         }
     }
 
-    // ─── CRUD: Matrices ───────────────────────────────────────────────────────
-
     fun abrirFormNuevaMatriz() {
         _uiState.update { it.copy(mostrarNuevaMatriz = true, matrizSeleccionadaId = null) }
     }
@@ -117,16 +118,16 @@ class CriticidadViewModel : ViewModel() {
                     val request = com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO(
                         nombre = actividad,
                         fechaEvaluacion = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Date()),
-                        facultadId = 1L, // hardcoded for now
-                        creadoPorId = 1L, // hardcoded for now
-                        aspectos = emptyList() // TODO: collect aspects from UI
+                        facultadId = sessionManager.fetchUserFacultadId().takeIf { it != -1L } ?: 1L,
+                        creadoPorId = sessionManager.fetchUserId().takeIf { it != -1L } ?: 1L,
+                        aspectos = emptyList() 
                     )
                     val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.crearMatriz(request)
                     if (!response.isSuccessful) {
                         println("Error al crear matriz: ${response.code()}")
                     }
                 }
-                
+
                 ActividadRepository.registrar(
                     titulo = if (esNueva) "Nueva matriz — ${instalacionId.trim()}" else "Matriz editada — ${instalacionId.trim()}",
                     descripcion = actividad.trim(),
@@ -157,8 +158,6 @@ class CriticidadViewModel : ViewModel() {
         }
         publicarMatrices()
     }
-
-    // ─── CRUD: Aspectos ───────────────────────────────────────────────────────
 
     fun abrirFormNuevoAspecto(matrizId: String) {
         _uiState.update { it.copy(mostrarNuevoAspecto = true, matrizSeleccionadaId = matrizId, aspectoEditandoId = null) }
@@ -195,12 +194,11 @@ class CriticidadViewModel : ViewModel() {
             calculador = estrategia
         )
 
-        // Reconstruir la matriz con la lista actualizada
         val aspectosActualizados = if (aspectoEditandoId != null) {
-            // Reemplazar aspecto existente
+
             matriz.aspectos.map { if (it.id == aspectoEditandoId) nuevoAspecto else it }
         } else {
-            // Agregar nuevo
+
             matriz.aspectos + nuevoAspecto
         }
 
@@ -262,8 +260,6 @@ class CriticidadViewModel : ViewModel() {
     private fun publicarMatrices() {
         _uiState.update { it.copy(matrices = _matrices.toList(), isLoading = false) }
     }
-
-    // ─── Datos semilla ────────────────────────────────────────────────────────
 
     private fun crearMatrizIngenieria(): MatrizAspectos {
         val m = MatrizAspectos("MAT-001", "Facultad de Ingeniería",

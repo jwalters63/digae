@@ -6,9 +6,6 @@ import com.digae.sga.entity.enums.ClasificacionResiduo;
 
 import java.util.List;
 
-/**
- * Interfaz del servicio de Bitácora de Residuos.
- */
 public interface BitacoraResiduoService {
 
     BitacoraResiduoResponseDTO crearRegistro(BitacoraResiduoRequestDTO requestDTO);

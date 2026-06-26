@@ -15,10 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Implementación del servicio de Usuario.
- * Contiene la lógica de negocio para operaciones CRUD y validaciones.
- */
 @Service
 @Transactional
 public class UsuarioServiceImpl implements UsuarioService {
@@ -31,7 +27,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO requestDTO) {
-        // Validar que el email no esté duplicado
+
         if (usuarioRepository.existsByEmail(requestDTO.getEmail())) {
             throw new BusinessException(
                     "Ya existe un usuario registrado con el email: " + requestDTO.getEmail()
@@ -62,14 +58,11 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Override
     public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO requestDTO) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
 
-        // Validar que el nuevo email no esté en uso por otro usuario
         if (!usuario.getEmail().equals(requestDTO.getEmail())
                 && usuarioRepository.existsByEmail(requestDTO.getEmail())) {
             throw new BusinessException(

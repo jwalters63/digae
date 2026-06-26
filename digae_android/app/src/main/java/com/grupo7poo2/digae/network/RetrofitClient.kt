@@ -8,8 +8,6 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // 10.0.2.2 es el alias que usa el emulador de Android para acceder a localhost (127.0.0.1) de tu computadora.
-    // Si pruebas en un dispositivo físico, cambia esto por la IP local de tu PC (ej: "http://192.168.1.5:8081/")
     private const val BASE_URL = "http://10.0.2.2:8081/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {

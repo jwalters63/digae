@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ─── Enumeraciones del dominio ────────────────────────────────────────────────
-
 enum class TipoResiduo(val label: String, val peligroso: Boolean = false) {
     COMUN("Residuo Común"),
     RECICLABLE("Reciclable"),
@@ -28,8 +26,6 @@ enum class UnidadPeso(val label: String) {
     LB("lb")
 }
 
-// ─── Clase principal: BitacoraResiduos ───────────────────────────────────────
-
 class BitacoraResiduos(
     val id: String,
     val instalacionId: String,
@@ -40,7 +36,6 @@ class BitacoraResiduos(
 ) {
     private val _residuos = mutableListOf<Residuo>()
 
-    /** Acceso de solo lectura (encapsulamiento POO) */
     val residuos: List<Residuo> get() = _residuos.toList()
 
     fun registrarSalida(residuo: Residuo) { _residuos.add(residuo) }
@@ -63,8 +58,6 @@ class BitacoraResiduos(
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(fecha)
 }
 
-// ─── Residuo individual ───────────────────────────────────────────────────────
-
 class Residuo(
     val id: String,
     val descripcion: String,
@@ -79,7 +72,7 @@ class Residuo(
         UnidadPeso.LB  -> peso * 0.453592
     }
 
-    fun clasificar(nuevoTipo: TipoResiduo) { /* Reclasificación extensible */ }
+    fun clasificar(nuevoTipo: TipoResiduo) {  }
 
     fun calcularVolumen(): Double = pesoEnKg() * 0.001
 }

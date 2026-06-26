@@ -35,7 +35,6 @@ import com.grupo7poo2.digae.modelos.ActividadReciente
 import com.grupo7poo2.digae.modelos.ActividadRepository
 import com.grupo7poo2.digae.modelos.ModuloApp
 
-// --- FORMA DE OLA (WAVE) ---
 @Composable
 fun WaveSeparator() {
     Canvas(modifier = Modifier
@@ -57,6 +56,7 @@ fun WaveSeparator() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDashboardScreen(
+    sessionManager: com.grupo7poo2.digae.network.auth.SessionManager,
     matricesCount: Int = 0,
     auditoriasCount: Int = 0,
     bitacorasCount: Int = 0,
@@ -65,12 +65,18 @@ fun HomeDashboardScreen(
     onModulo3Click: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToAlertas: () -> Unit = {},
-    onNavigateToInstalaciones: () -> Unit = {}
+    onNavigateToInstalaciones: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
     val actividades by ActividadRepository.actividades.collectAsStateWithLifecycle()
+
+    val userName = sessionManager.fetchUserName() ?: "Usuario"
+    val userEmail = sessionManager.fetchUserEmail() ?: ""
+    val userRole = sessionManager.fetchUserRole() ?: "USUARIO"
+    val userInitials = if (userName.isNotBlank()) userName.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.joinToString("").take(2) else "US"
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -81,10 +87,18 @@ fun HomeDashboardScreen(
                 modifier = Modifier.width(280.dp)
             ) {
                 DrawerContent(
+                    userName = userName,
+                    userEmail = userEmail,
+                    userInitials = userInitials,
                     onClose = { scope.launch { drawerState.close() } },
                     onNavigateToInstalaciones = {
                         scope.launch { drawerState.close() }
                         onNavigateToInstalaciones()
+                    },
+                    onLogout = {
+                        sessionManager.clearSession()
+                        scope.launch { drawerState.close() }
+                        onLogout()
                     }
                 )
             }
@@ -106,7 +120,7 @@ fun HomeDashboardScreen(
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Top Bar Custom (Figma Style)
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -115,7 +129,15 @@ fun HomeDashboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    IconButton(onClick = { 
+                        scope.launch { 
+                            try {
+                                drawerState.open() 
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        } 
+                    }) {
                         Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = Color.White)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -134,7 +156,6 @@ fun HomeDashboardScreen(
                     }
                 }
 
-                // Header Profile Card
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .background(FigmaGreenPrimary)
@@ -154,12 +175,12 @@ fun HomeDashboardScreen(
                                     .background(Color(0xFFA5D6A7), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("AV", color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                                Text(userInitials, color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium, fontSize = 18.sp)
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text("Bienvenida,", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-                                Text("Andrea Vargas", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 20.sp)
+                                Text("Bienvenido(a),", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                                Text(userName, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 20.sp)
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -167,7 +188,7 @@ fun HomeDashboardScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.horizontalScroll(rememberScrollState())
                         ) {
-                            // Role Badge
+
                             Row(
                                 modifier = Modifier
                                     .background(FigmaGreenBadge, RoundedCornerShape(50))
@@ -179,9 +200,9 @@ fun HomeDashboardScreen(
                                     .size(6.dp)
                                     .background(Color(0xFFA5D6A7), CircleShape))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("ADMINISTRADORA", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                Text(userRole, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                             }
-                            // Area Badge
+
                             Row(
                                 modifier = Modifier
                                     .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(50))
@@ -199,7 +220,6 @@ fun HomeDashboardScreen(
 
                 WaveSeparator()
 
-                // Content
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -214,7 +234,6 @@ fun HomeDashboardScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Grid: 2 Columns
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         ModuleCard(
                             modifier = Modifier.weight(1f),
@@ -242,7 +261,7 @@ fun HomeDashboardScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    // Full Width Card
+
                     FullWidthModuleCard(
                         title = "Trazabilidad de Residuos",
                         subtitle = "Registro y cadena de custodia",
@@ -376,8 +395,8 @@ fun FullWidthModuleCard(title: String, subtitle: String, badge: String, icon: Im
 fun ActivityItem(actividad: ActividadReciente, showDivider: Boolean) {
     val dotColor = when (actividad.tipoAccion) {
         com.grupo7poo2.digae.modelos.TipoAccion.CREAR -> FigmaGreenPrimary
-        com.grupo7poo2.digae.modelos.TipoAccion.EDITAR -> Color(0xFFF57C00) // Naranja
-        com.grupo7poo2.digae.modelos.TipoAccion.ELIMINAR -> Color(0xFFD32F2F) // Rojo
+        com.grupo7poo2.digae.modelos.TipoAccion.EDITAR -> Color(0xFFF57C00) 
+        com.grupo7poo2.digae.modelos.TipoAccion.ELIMINAR -> Color(0xFFD32F2F) 
     }
     Column {
         Row(
@@ -453,7 +472,14 @@ fun BottomNavBar(activeNav: Int, onNavSelected: (Int) -> Unit) {
 }
 
 @Composable
-fun DrawerContent(onClose: () -> Unit, onNavigateToInstalaciones: () -> Unit = {}) {
+fun DrawerContent(
+    userName: String,
+    userEmail: String,
+    userInitials: String,
+    onClose: () -> Unit,
+    onNavigateToInstalaciones: () -> Unit = {},
+    onLogout: () -> Unit = {}
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .background(FigmaGreenPrimary)
@@ -476,16 +502,16 @@ fun DrawerContent(onClose: () -> Unit, onNavigateToInstalaciones: () -> Unit = {
                         .background(Color(0xFFA5D6A7), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("AV", color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium)
+                    Text(userInitials, color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text("Andrea Vargas", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                    Text("a.vargas@digae.edu.co", color = Color.White.copy(alpha = 0.75f), fontSize = 11.sp)
+                    Text(userName, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(userEmail, color = Color.White.copy(alpha = 0.75f), fontSize = 11.sp)
                 }
             }
         }
-        
+
         Column(modifier = Modifier.padding(vertical = 8.dp).weight(1f)) {
             val items = listOf(
                 Pair(Icons.Outlined.Home, "Tablero"),
@@ -515,7 +541,7 @@ fun DrawerContent(onClose: () -> Unit, onNavigateToInstalaciones: () -> Unit = {
                 }
             }
         }
-        
+
         HorizontalDivider(color = FigmaGreenPrimary.copy(alpha = 0.12f))
         Row(
             modifier = Modifier
@@ -537,6 +563,7 @@ fun DrawerContent(onClose: () -> Unit, onNavigateToInstalaciones: () -> Unit = {
 @Composable
 fun HomeDashboardPreview() {
     DIGAETheme {
-        HomeDashboardScreen()
+        val context = androidx.compose.ui.platform.LocalContext.current
+        HomeDashboardScreen(sessionManager = com.grupo7poo2.digae.network.auth.SessionManager(context))
     }
 }

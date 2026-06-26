@@ -12,18 +12,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Manejador global de excepciones para toda la API DIGAE.
- * Captura excepciones específicas y genéricas, y las transforma
- * en respuestas JSON estandarizadas con el código HTTP semántico correcto.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Captura errores de validación de DTOs (@Valid).
-     * Retorna HTTP 400 con detalle de cada campo inválido.
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
@@ -44,10 +35,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Captura cuando un recurso no se encuentra.
-     * Retorna HTTP 404.
-     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleResourceNotFound(
             ResourceNotFoundException ex) {
@@ -62,10 +49,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Captura violaciones de reglas de negocio (ej. email duplicado).
-     * Retorna HTTP 409 Conflict.
-     */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusinessException(
             BusinessException ex) {
@@ -80,12 +63,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    /**
-     * Captura cualquier excepción no controlada.
-     * Retorna HTTP 500 con mensaje genérico (no expone detalles internos).
-     */
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("No Autorizado")
+                .message("Email o contraseña incorrectos o sesión inválida: " + ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGlobalException(Exception ex) {
+        ex.printStackTrace(); 
 
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

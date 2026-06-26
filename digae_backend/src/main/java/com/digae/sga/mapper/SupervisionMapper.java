@@ -5,19 +5,12 @@ import com.digae.sga.dto.response.SupervisionResponseDTO;
 import com.digae.sga.entity.Supervision;
 import com.digae.sga.entity.Usuario;
 
-/**
- * Mapper para conversiones entre Supervision Entity y sus DTOs.
- */
 public final class SupervisionMapper {
 
     private SupervisionMapper() {
-        // Utility class
+
     }
 
-    /**
-     * Convierte un SupervisionRequestDTO a entidad.
-     * Requiere el Usuario (inspector) resuelto desde el repositorio.
-     */
     public static Supervision toEntity(SupervisionRequestDTO dto, Usuario inspector) {
         Supervision supervision = Supervision.builder()
                 .fechaInspeccion(dto.getFechaInspeccion())
@@ -26,7 +19,7 @@ public final class SupervisionMapper {
                 .observaciones(dto.getObservaciones())
                 .inspector(inspector)
                 .build();
-                
+
         if (dto.getItems() != null) {
             java.util.List<com.digae.sga.entity.ItemSupervision> items = dto.getItems().stream().map(iDTO -> 
                 com.digae.sga.entity.ItemSupervision.builder()
@@ -38,14 +31,10 @@ public final class SupervisionMapper {
             ).collect(java.util.stream.Collectors.toList());
             supervision.setItems(items);
         }
-        
+
         return supervision;
     }
 
-    /**
-     * Convierte una entidad Supervision a ResponseDTO.
-     * Incluye el nombre completo del inspector.
-     */
     public static SupervisionResponseDTO toResponseDTO(Supervision entity) {
         SupervisionResponseDTO dto = SupervisionResponseDTO.builder()
                 .id(entity.getId())
@@ -59,7 +48,7 @@ public final class SupervisionMapper {
                 )
                 .creadoEn(entity.getCreadoEn())
                 .build();
-                
+
         if (entity.getItems() != null) {
             java.util.List<com.digae.sga.dto.request.ItemSupervisionDTO> itemsDTO = entity.getItems().stream().map(i ->
                 com.digae.sga.dto.request.ItemSupervisionDTO.builder()
@@ -70,13 +59,10 @@ public final class SupervisionMapper {
             ).collect(java.util.stream.Collectors.toList());
             dto.setItems(itemsDTO);
         }
-        
+
         return dto;
     }
 
-    /**
-     * Actualiza los campos de una entidad existente con datos del DTO.
-     */
     public static void updateEntityFromDTO(SupervisionRequestDTO dto, Supervision entity, Usuario inspector) {
         if (dto.getFechaInspeccion() != null) {
             entity.setFechaInspeccion(dto.getFechaInspeccion());
@@ -85,7 +71,7 @@ public final class SupervisionMapper {
         entity.setCalificacionGeneral(dto.getCalificacionGeneral());
         entity.setObservaciones(dto.getObservaciones());
         entity.setInspector(inspector);
-        
+
         if (dto.getItems() != null) {
             entity.getItems().clear();
             entity.getItems().addAll(dto.getItems().stream().map(iDTO -> 

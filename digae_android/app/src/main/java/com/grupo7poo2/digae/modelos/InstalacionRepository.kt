@@ -10,7 +10,7 @@ object InstalacionRepository {
     val instalaciones: StateFlow<List<Instalacion>> = _instalaciones.asStateFlow()
 
     init {
-        // Datos semilla iniciales
+
         _instalaciones.value = listOf(
             Instalacion(nombre = "Facultad de Ingeniería", tipo = TipoInstalacion.FACULTAD, ubicacion = "Campus Central, Bloque A"),
             Instalacion(nombre = "Facultad de Medicina", tipo = TipoInstalacion.FACULTAD, ubicacion = "Campus Central, Bloque C"),
@@ -26,8 +26,8 @@ object InstalacionRepository {
         ActividadRepository.registrar(
             titulo = instalacion.nombre,
             descripcion = "Instalación agregada al catálogo",
-            autor = "Administrador del Sistema", // hardcoded para el ejemplo
-            modulo = ModuloApp.CRITICIDAD, // Podemos mapearlo de forma neutral
+            autor = "Administrador del Sistema", 
+            modulo = ModuloApp.CRITICIDAD, 
             accion = TipoAccion.CREAR
         )
     }

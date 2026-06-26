@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ─── Enumeraciones del dominio ────────────────────────────────────────────────
-
 enum class EstadoSupervision(val label: String) {
     PROGRAMADA("Programada"),
     EN_PROGRESO("En progreso"),
@@ -35,19 +33,16 @@ enum class ResultadoSupervision(val label: String) {
     NO_APLICA("No aplica")
 }
 
-// ─── Clase principal: Supervision ────────────────────────────────────────────
-
 class Supervision(
     val id: String,
     val instalacionId: String,
     val tipo: TipoSupervision,
     val fecha: Date,
-    val supervisor: String,           // Nombre del supervisor (simplificado)
+    val supervisor: String,           
     var estado: EstadoSupervision = EstadoSupervision.PROGRAMADA
 ) {
     private val _items = mutableListOf<ItemSupervision>()
 
-    /** Acceso de solo lectura (encapsulamiento) */
     val items: List<ItemSupervision> get() = _items.toList()
 
     fun agregarItem(item: ItemSupervision) {
@@ -62,7 +57,6 @@ class Supervision(
     fun itemsConResultado(): Int =
         _items.count { it.resultado == ResultadoSupervision.CUMPLE || it.resultado == ResultadoSupervision.NO_CUMPLE }
 
-    /** Porcentaje de ítems que CUMPLEN sobre los que tienen resultado definido */
     fun porcentajeCumplimiento(): Double {
         val evaluados = _items.count { it.resultado != ResultadoSupervision.NO_APLICA }
         if (evaluados == 0) return 0.0
@@ -70,7 +64,6 @@ class Supervision(
         return (cumplen.toDouble() / evaluados) * 100.0
     }
 
-    /** Progreso general del formulario (ítems con cualquier resultado vs total) */
     fun progresoFormulario(): Double {
         if (_items.isEmpty()) return 0.0
         val respondidos = _items.count { it.fueEvaluado }
@@ -87,8 +80,6 @@ class Supervision(
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(fecha)
 }
 
-// ─── Ítem de supervisión ─────────────────────────────────────────────────────
-
 class ItemSupervision(
     val id: String,
     val descripcion: String,
@@ -97,7 +88,7 @@ class ItemSupervision(
     var observacion: String? = null,
     var fueEvaluado: Boolean = false
 ) {
-    /** Evalúa el ítem registrando resultado y observación */
+
     fun evaluar(nuevoResultado: ResultadoSupervision, obs: String? = null) {
         resultado = nuevoResultado
         observacion = obs
@@ -110,5 +101,5 @@ class ItemSupervision(
         fueEvaluado = false
     }
 
-    fun guardar() { /* Simulación de persistencia */ }
+    fun guardar() {  }
 }

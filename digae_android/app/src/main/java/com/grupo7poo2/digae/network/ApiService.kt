@@ -27,4 +27,7 @@ interface ApiService {
     @POST("api/v1/matrices")
     suspend fun crearMatriz(@Body request: com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO): Response<com.grupo7poo2.digae.network.dto.MatrizAspectosResponseDTO>
 
+    @POST("api/v1/auth/login")
+    suspend fun login(@Body request: com.grupo7poo2.digae.network.dto.LoginRequestDTO): Response<com.grupo7poo2.digae.network.dto.AuthResponseDTO>
+
 }

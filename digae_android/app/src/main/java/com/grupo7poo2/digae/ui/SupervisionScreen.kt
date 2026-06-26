@@ -33,8 +33,6 @@ import androidx.navigation.compose.rememberNavController
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Helpers de color por estado / resultado ─────────────────────────────────
-
 private fun estadoSupColor(e: EstadoSupervision) = when (e) {
     EstadoSupervision.PROGRAMADA   -> Color(0xFF757575)
     EstadoSupervision.EN_PROGRESO  -> Color(0xFF1565C0)
@@ -76,8 +74,6 @@ private fun categoriaIcono(c: CategoriaItem): ImageVector = when (c) {
     CategoriaItem.PERSONAL       -> Icons.Outlined.Group
     CategoriaItem.PROCEDIMIENTOS -> Icons.Outlined.AccountTree
 }
-
-// ─── Pantalla 1: Lista de Supervisiones ──────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,11 +125,13 @@ fun SupervisionScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = viewModel::abrirFormNuevaSupervision,
-                containerColor = FigmaBluePrimary, contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ) { Icon(Icons.Outlined.Add, "Nueva Supervisión") }
+            if (viewModel.userRole == "ADMINISTRADOR") {
+                FloatingActionButton(
+                    onClick = viewModel::abrirFormNuevaSupervision,
+                    containerColor = FigmaBluePrimary, contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                ) { Icon(Icons.Outlined.Add, "Nueva Supervisión") }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -159,6 +157,7 @@ fun SupervisionScreen(
                     uiState.supervisiones.forEach { sup ->
                         SupervisionCard(
                             supervision = sup,
+                            isAdmin = viewModel.userRole == "ADMINISTRADOR",
                             onClick = { navController.navigate("supervision/${sup.id}") },
                             onEditar = { viewModel.abrirFormEditarSupervision(sup.id) },
                             onEliminar = { supParaEliminar = sup }
@@ -170,8 +169,6 @@ fun SupervisionScreen(
         }
     }
 }
-
-// ─── Tarjeta de resumen ───────────────────────────────────────────────────────
 
 @Composable
 private fun ResumenSupervisionCard(supervisiones: List<Supervision>) {
@@ -203,7 +200,7 @@ private fun ResumenSupervisionCard(supervisiones: List<Supervision>) {
             }
         }
     }
-    // Wave del mismo color azul
+
     WaveSeparatorColor(FigmaBluePrimary)
 }
 
@@ -215,7 +212,6 @@ private fun MetricaSupItem(valor: String, label: String, color: Color) {
     }
 }
 
-// Wave reutilizable parametrizable por color
 @Composable
 fun WaveSeparatorColor(color: Color) {
     androidx.compose.foundation.Canvas(
@@ -233,8 +229,6 @@ fun WaveSeparatorColor(color: Color) {
         drawPath(path, FigmaAppBackground)
     }
 }
-
-// ─── Estado vacío ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun EstadoVacioSupervisiones(onNueva: () -> Unit) {
@@ -255,11 +249,10 @@ private fun EstadoVacioSupervisiones(onNueva: () -> Unit) {
     }
 }
 
-// ─── Tarjeta de supervisión ───────────────────────────────────────────────────
-
 @Composable
 private fun SupervisionCard(
     supervision: Supervision,
+    isAdmin: Boolean,
     onClick: () -> Unit,
     onEditar: () -> Unit,
     onEliminar: () -> Unit
@@ -275,7 +268,7 @@ private fun SupervisionCard(
         .clickable(onClick = onClick)
         .padding(16.dp)
     ) {
-        // Cabecera: ícono tipo + área + chip estado
+
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -299,7 +292,6 @@ private fun SupervisionCard(
 
         Spacer(Modifier.height(8.dp))
 
-        // Info: supervisor + fecha
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Icon(Icons.Outlined.Person, null, tint = FigmaTextLight, modifier = Modifier.size(12.dp))
@@ -311,22 +303,22 @@ private fun SupervisionCard(
             }
         }
 
-        // Botones editar / eliminar
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Edit, null, tint = FigmaBluePrimary, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp)); Text("Editar", fontSize = 12.sp, color = FigmaBluePrimary)
-            }
-            TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp)); Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+        if (isAdmin) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Edit, null, tint = FigmaBluePrimary, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp)); Text("Editar", fontSize = 12.sp, color = FigmaBluePrimary)
+                }
+                TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp)); Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+                }
             }
         }
 
         HorizontalDivider(color = Color(0xFFF0F0F0))
         Spacer(Modifier.height(10.dp))
 
-        // Métricas de ítems
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             SupInfoChip(Icons.Outlined.Checklist, "${supervision.totalItems()} ítems", FigmaBluePrimary)
             SupInfoChip(Icons.Outlined.Cancel, "${supervision.itemsCriticos().size} no cumplen",
@@ -335,7 +327,6 @@ private fun SupervisionCard(
 
         Spacer(Modifier.height(10.dp))
 
-        // Barra de progreso del formulario
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Progreso de evaluación", fontSize = 12.sp, color = FigmaTextSecondary)
@@ -370,8 +361,6 @@ private fun SupInfoChip(icon: ImageVector, texto: String, color: Color) {
     }
 }
 
-// ─── Pantalla 2: Detalle de Ítems ─────────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupervisionDetalleScreen(
@@ -385,7 +374,6 @@ fun SupervisionDetalleScreen(
     var tabSeleccionado by remember { mutableIntStateOf(0) }
     val tabs = listOf("Todos", "Cumple", "No cumple", "No aplica")
 
-    // Sheet de nuevo/editar ítem
     if (uiState.mostrarNuevoItem && uiState.supervisionSeleccionadaId == supervisionId) {
         val item = uiState.itemEditandoId?.let { viewModel.obtenerItem(supervisionId, it) }
         NuevoItemSupervisionSheet(
@@ -395,7 +383,6 @@ fun SupervisionDetalleScreen(
         )
     }
 
-    // Diálogo de confirmación
     itemParaEliminar?.let { item ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Ítem",
@@ -422,19 +409,23 @@ fun SupervisionDetalleScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.abrirFormEditarSupervision(supervisionId) }) {
-                        Icon(Icons.Outlined.Edit, "Editar supervisión", tint = Color.White)
+                    if (viewModel.userRole == "ADMINISTRADOR") {
+                        IconButton(onClick = { viewModel.abrirFormEditarSupervision(supervisionId) }) {
+                            Icon(Icons.Outlined.Edit, "Editar supervisión", tint = Color.White)
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FigmaBluePrimary)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.abrirFormNuevoItem(supervisionId) },
-                containerColor = FigmaBluePrimary, contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ) { Icon(Icons.Outlined.Add, "Agregar Ítem") }
+            if (viewModel.userRole == "ADMINISTRADOR") {
+                FloatingActionButton(
+                    onClick = { viewModel.abrirFormNuevoItem(supervisionId) },
+                    containerColor = FigmaBluePrimary, contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                ) { Icon(Icons.Outlined.Add, "Agregar Ítem") }
+            }
         }
     ) { innerPadding ->
         if (supervision == null) {
@@ -443,11 +434,10 @@ fun SupervisionDetalleScreen(
             }
         } else {
             Column(modifier = Modifier.fillMaxSize().padding(innerPadding).verticalScroll(rememberScrollState())) {
-                // Info card de la supervisión
+
                 InfoSupervisionCard(supervision)
                 WaveSeparatorColor(FigmaBluePrimary)
 
-                // Tabs de filtro
                 ScrollableTabRow(
                     selectedTabIndex = tabSeleccionado,
                     containerColor = Color.White,
@@ -482,6 +472,7 @@ fun SupervisionDetalleScreen(
                         itemsFiltrados.forEach { item ->
                             ItemSupervisionCard(
                                 item = item,
+                                isAdmin = viewModel.userRole == "ADMINISTRADOR",
                                 onEvaluar = { resultado, obs -> viewModel.evaluarItem(supervisionId, item.id, resultado, obs) },
                                 onObservacionCambio = { obs -> viewModel.actualizarObservacion(supervisionId, item.id, obs) },
                                 onEditar = { viewModel.abrirFormEditarItem(supervisionId, item.id) },
@@ -527,7 +518,7 @@ private fun InfoSupervisionCard(supervision: Supervision) {
                     Text(supervision.fechaFormateada(), fontSize = 12.sp, color = FigmaTextSecondary)
                 }
             }
-            // Cumplimiento
+
             Row(modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Cumplimiento: ${"%.1f".format(supervision.porcentajeCumplimiento())}%",
@@ -568,11 +559,10 @@ private fun EstadoVacioItems(conFiltro: Boolean, onNuevo: (() -> Unit)?) {
     }
 }
 
-// ─── Tarjeta de ítem con evaluación inline ────────────────────────────────────
-
 @Composable
 private fun ItemSupervisionCard(
     item: ItemSupervision,
+    isAdmin: Boolean,
     onEvaluar: (ResultadoSupervision, String?) -> Unit,
     onObservacionCambio: (String) -> Unit,
     onEditar: () -> Unit,
@@ -587,7 +577,7 @@ private fun ItemSupervisionCard(
         .border(1.dp, resultadoColor(item.resultado).copy(alpha = 0.15f), RoundedCornerShape(16.dp))
         .padding(14.dp)
     ) {
-        // Cabecera: categoría + estado
+
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -611,22 +601,22 @@ private fun ItemSupervisionCard(
         Spacer(Modifier.height(8.dp))
         Text(item.descripcion, fontWeight = FontWeight.Medium, color = FigmaTextPrimary, fontSize = 13.sp)
 
-        // Acciones rápidas
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Edit, null, tint = FigmaBluePrimary, modifier = Modifier.size(13.dp))
-                Spacer(Modifier.width(3.dp)); Text("Editar", fontSize = 11.sp, color = FigmaBluePrimary)
-            }
-            TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(13.dp))
-                Spacer(Modifier.width(3.dp)); Text("Eliminar", fontSize = 11.sp, color = Color(0xFFB71C1C))
+        if (isAdmin) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Edit, null, tint = FigmaBluePrimary, modifier = Modifier.size(13.dp))
+                    Spacer(Modifier.width(3.dp)); Text("Editar", fontSize = 11.sp, color = FigmaBluePrimary)
+                }
+                TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(13.dp))
+                    Spacer(Modifier.width(3.dp)); Text("Eliminar", fontSize = 11.sp, color = Color(0xFFB71C1C))
+                }
             }
         }
 
         HorizontalDivider(color = Color(0xFFF0F0F0))
         Spacer(Modifier.height(10.dp))
 
-        // SegmentedButton de evaluación directa
         Text("Evaluación en campo", fontSize = 12.sp, color = FigmaTextSecondary, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(6.dp))
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -647,7 +637,6 @@ private fun ItemSupervisionCard(
             }
         }
 
-        // Campo de observación (solo si NO_CUMPLE)
         if (item.resultado == ResultadoSupervision.NO_CUMPLE && item.fueEvaluado) {
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -666,7 +655,6 @@ private fun ItemSupervisionCard(
             )
         }
 
-        // Mostrar observación guardada si CUMPLE y tiene nota
         if (item.resultado != ResultadoSupervision.NO_CUMPLE && !item.observacion.isNullOrBlank()) {
             Spacer(Modifier.height(6.dp))
             Row(modifier = Modifier.fillMaxWidth()
@@ -679,8 +667,6 @@ private fun ItemSupervisionCard(
         }
     }
 }
-
-// ─── Previews ─────────────────────────────────────────────────────────────────
 
 @Preview(showBackground = true)
 @Composable

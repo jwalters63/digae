@@ -8,10 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Repositorio JPA para la entidad BitacoraResiduo.
- * Provee queries por clasificación, área generadora y rangos de fecha.
- */
 @Repository
 public interface BitacoraResiduoRepository extends JpaRepository<BitacoraResiduo, Long> {
 

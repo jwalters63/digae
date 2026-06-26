@@ -35,8 +35,6 @@ import androidx.navigation.compose.rememberNavController
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Colores semánticos por nivel de criticidad ──────────────────────────────
-
 fun nivelColor(nivel: NivelCriticidad): Color = when (nivel) {
     NivelCriticidad.BAJA    -> Color(0xFF2E7D32)
     NivelCriticidad.MEDIA   -> Color(0xFFF57F17)
@@ -66,8 +64,6 @@ fun estadoMatrizColor(estado: EstadoMatriz): Color = when (estado) {
     EstadoMatriz.APROBADA    -> Color(0xFF2E7D32)
 }
 
-// ─── Pantalla 1: Lista de Matrices ───────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CriticidadScreen(
@@ -77,7 +73,6 @@ fun CriticidadScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var matrizParaEliminar by remember { mutableStateOf<MatrizAspectos?>(null) }
 
-    // Diálogo de nueva/editar matriz
     if (uiState.mostrarNuevaMatriz) {
         val matrizExistente = uiState.matrizSeleccionadaId?.let { viewModel.obtenerMatriz(it) }
         NuevaMatrizSheet(
@@ -89,7 +84,6 @@ fun CriticidadScreen(
         )
     }
 
-    // Diálogo de confirmación de eliminación
     matrizParaEliminar?.let { matriz ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Matriz",
@@ -123,13 +117,15 @@ fun CriticidadScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = viewModel::abrirFormNuevaMatriz,
-                containerColor = FigmaGreenPrimary,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Outlined.Add, "Nueva Matriz")
+            if (viewModel.userRole == "ADMINISTRADOR") {
+                FloatingActionButton(
+                    onClick = viewModel::abrirFormNuevaMatriz,
+                    containerColor = FigmaGreenPrimary,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Outlined.Add, "Nueva Matriz")
+                }
             }
         }
     ) { innerPadding ->
@@ -166,6 +162,7 @@ fun CriticidadScreen(
                         uiState.matrices.forEach { matriz ->
                             MatrizCard(
                                 matriz = matriz,
+                                isAdmin = viewModel.userRole == "ADMINISTRADOR",
                                 onClick = { navController.navigate("criticidad/${matriz.id}") },
                                 onEditar = { viewModel.abrirFormEditarMatriz(matriz.id) },
                                 onEliminar = { matrizParaEliminar = matriz }
@@ -178,8 +175,6 @@ fun CriticidadScreen(
         }
     }
 }
-
-// ─── Tarjeta de resumen estadístico ──────────────────────────────────────────
 
 @Composable
 private fun ResumenCriticidadCard(matrices: List<MatrizAspectos>) {
@@ -221,8 +216,6 @@ private fun MetricaItem(valor: String, label: String, color: Color) {
     }
 }
 
-// ─── Estado vacío ─────────────────────────────────────────────────────────────
-
 @Composable
 private fun EstadoVacioMatrices(onNueva: () -> Unit) {
     Column(
@@ -246,11 +239,10 @@ private fun EstadoVacioMatrices(onNueva: () -> Unit) {
     }
 }
 
-// ─── Tarjeta de matriz ────────────────────────────────────────────────────────
-
 @Composable
 private fun MatrizCard(
     matriz: MatrizAspectos,
+    isAdmin: Boolean,
     onClick: () -> Unit,
     onEditar: () -> Unit,
     onEliminar: () -> Unit
@@ -270,7 +262,7 @@ private fun MatrizCard(
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
-        // Cabecera: área + acciones
+
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(1f)) {
@@ -280,7 +272,7 @@ private fun MatrizCard(
             }
             Spacer(Modifier.width(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                // Chip de estado
+
                 Box(modifier = Modifier
                     .background(estadoMatrizColor(matriz.estado).copy(alpha = 0.12f), RoundedCornerShape(50))
                     .padding(horizontal = 10.dp, vertical = 4.dp)) {
@@ -292,31 +284,31 @@ private fun MatrizCard(
 
         Spacer(Modifier.height(10.dp))
 
-        // Botones de acción (editar / eliminar)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically) {
-            TextButton(
-                onClick = onEditar,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(Icons.Outlined.Edit, null, tint = FigmaGreenPrimary, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Editar", fontSize = 12.sp, color = FigmaGreenPrimary)
-            }
-            TextButton(
-                onClick = onEliminar,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+        if (isAdmin) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically) {
+                TextButton(
+                    onClick = onEditar,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Outlined.Edit, null, tint = FigmaGreenPrimary, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Editar", fontSize = 12.sp, color = FigmaGreenPrimary)
+                }
+                TextButton(
+                    onClick = onEliminar,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+                }
             }
         }
 
         HorizontalDivider(color = Color(0xFFF0F0F0))
         Spacer(Modifier.height(10.dp))
 
-        // Métricas
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             InfoChip(Icons.AutoMirrored.Outlined.List, "${matriz.aspectos.size} aspectos", FigmaBluePrimary)
             InfoChip(Icons.Outlined.Warning, "${matriz.aspectosCriticos().size} críticos",
@@ -325,7 +317,6 @@ private fun MatrizCard(
 
         Spacer(Modifier.height(12.dp))
 
-        // Barra de progreso de criticidad
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Criticidad global", fontSize = 12.sp, color = FigmaTextSecondary)
@@ -369,8 +360,6 @@ fun InfoChip(icon: ImageVector, texto: String, color: Color) {
     }
 }
 
-// ─── Pantalla 2: Detalle de Aspectos ─────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CriticidadDetalleScreen(
@@ -382,7 +371,6 @@ fun CriticidadDetalleScreen(
     val matriz = uiState.matrices.find { it.id == matrizId }
     var aspectoParaEliminar by remember { mutableStateOf<AspectAmbiental?>(null) }
 
-    // Sheet de nuevo/editar aspecto
     if (uiState.mostrarNuevoAspecto && uiState.matrizSeleccionadaId == matrizId) {
         val aspectoExistente = uiState.aspectoEditandoId?.let { viewModel.obtenerAspecto(matrizId, it) }
         NuevoAspectoSheet(
@@ -394,7 +382,6 @@ fun CriticidadDetalleScreen(
         )
     }
 
-    // Diálogo de confirmación de eliminación de aspecto
     aspectoParaEliminar?.let { aspecto ->
         ConfirmarEliminarDialog(
             titulo = "Eliminar Aspecto",
@@ -424,22 +411,26 @@ fun CriticidadDetalleScreen(
                     }
                 },
                 actions = {
-                    // Botón editar la matriz desde aquí también
-                    IconButton(onClick = { viewModel.abrirFormEditarMatriz(matrizId) }) {
-                        Icon(Icons.Outlined.Edit, "Editar matriz", tint = Color.White)
+
+                    if (viewModel.userRole == "ADMINISTRADOR") {
+                        IconButton(onClick = { viewModel.abrirFormEditarMatriz(matrizId) }) {
+                            Icon(Icons.Outlined.Edit, "Editar matriz", tint = Color.White)
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FigmaGreenPrimary)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.abrirFormNuevoAspecto(matrizId) },
-                containerColor = FigmaGreenPrimary,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Outlined.Add, "Agregar Aspecto")
+            if (viewModel.userRole == "ADMINISTRADOR") {
+                FloatingActionButton(
+                    onClick = { viewModel.abrirFormNuevoAspecto(matrizId) },
+                    containerColor = FigmaGreenPrimary,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Outlined.Add, "Agregar Aspecto")
+                }
             }
         }
     ) { innerPadding ->
@@ -475,6 +466,7 @@ fun CriticidadDetalleScreen(
                         matriz.aspectos.forEach { aspecto ->
                             AspectCard(
                                 aspecto = aspecto,
+                                isAdmin = viewModel.userRole == "ADMINISTRADOR",
                                 onEditar = { viewModel.abrirFormEditarAspecto(matrizId, aspecto.id) },
                                 onEliminar = { aspectoParaEliminar = aspecto }
                             )
@@ -547,6 +539,7 @@ private fun EstadoVacioAspectos(onNuevo: () -> Unit) {
 @Composable
 private fun AspectCard(
     aspecto: AspectAmbiental,
+    isAdmin: Boolean,
     onEditar: () -> Unit,
     onEliminar: () -> Unit
 ) {
@@ -560,7 +553,7 @@ private fun AspectCard(
             .border(1.dp, nivelColor(nivel).copy(alpha = 0.15f), RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
-        // Cabecera: tipo + nivel + acciones
+
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -584,24 +577,24 @@ private fun AspectCard(
         Spacer(Modifier.height(2.dp))
         Text(aspecto.descripcionImpacto, fontSize = 12.sp, color = FigmaTextSecondary, lineHeight = 16.sp)
 
-        // Botones editar / eliminar
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Edit, null, tint = FigmaGreenPrimary, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Editar", fontSize = 12.sp, color = FigmaGreenPrimary)
-            }
-            TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
-                Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+        if (isAdmin) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onEditar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Edit, null, tint = FigmaGreenPrimary, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Editar", fontSize = 12.sp, color = FigmaGreenPrimary)
+                }
+                TextButton(onClick = onEliminar, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                    Icon(Icons.Outlined.Delete, null, tint = Color(0xFFB71C1C), modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Eliminar", fontSize = 12.sp, color = Color(0xFFB71C1C))
+                }
             }
         }
 
         HorizontalDivider(color = Color(0xFFF0F0F0))
         Spacer(Modifier.height(12.dp))
 
-        // Celdas G × S × P
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             GspCell("Gravedad", aspecto.gravedad, Modifier.weight(1f))
             GspCell("Severidad", aspecto.severidad, Modifier.weight(1f))
@@ -614,7 +607,6 @@ private fun AspectCard(
             }
         }
 
-        // Controles operacionales
         if (aspecto.controlesAsignados.isNotEmpty()) {
             Spacer(Modifier.height(10.dp))
             aspecto.controlesAsignados.forEach { control ->
@@ -639,8 +631,6 @@ private fun GspCell(label: String, valor: Int, modifier: Modifier = Modifier) {
         Text(label, fontSize = 10.sp, color = FigmaTextSecondary, textAlign = TextAlign.Center)
     }
 }
-
-// ─── Previews ─────────────────────────────────────────────────────────────────
 
 @Preview(showBackground = true)
 @Composable

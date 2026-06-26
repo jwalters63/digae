@@ -21,12 +21,10 @@ import java.util.function.Function;
 @Component
 public class JwtTokenProvider {
 
-    // 256-bit secret key (32 bytes) base64 encoded for HMAC-SHA256
-    // In production, load this from properties/env
     @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
     private String secretKey;
 
-    @Value("${jwt.expiration:86400000}") // 1 day
+    @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
     public String extractUsername(String token) {

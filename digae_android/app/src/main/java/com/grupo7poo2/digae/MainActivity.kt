@@ -24,7 +24,9 @@ import com.grupo7poo2.digae.ui.SupervisionViewModel
 import com.grupo7poo2.digae.ui.TrazabilidadDetalleScreen
 import com.grupo7poo2.digae.ui.TrazabilidadScreen
 import com.grupo7poo2.digae.ui.TrazabilidadViewModel
+import com.grupo7poo2.digae.ui.LoginScreen
 import com.grupo7poo2.digae.ui.theme.DIGAETheme
+import com.grupo7poo2.digae.network.auth.SessionManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +37,6 @@ class MainActivity : ComponentActivity() {
             DIGAETheme {
                 val navController = rememberNavController()
 
-                // ViewModels elevados al scope de la Activity — instancia única
-                // compartida por todas las pantallas del grafo de navegación.
                 val criticidadViewModel:  CriticidadViewModel  = viewModel()
                 val supervisionViewModel: SupervisionViewModel  = viewModel()
                 val trazabilidadViewModel: TrazabilidadViewModel = viewModel()
@@ -45,13 +45,27 @@ class MainActivity : ComponentActivity() {
                 val supervisionState by supervisionViewModel.uiState.collectAsStateWithLifecycle()
                 val trazabilidadState by trazabilidadViewModel.uiState.collectAsStateWithLifecycle()
 
+                val sessionManager = SessionManager(applicationContext)
+                val isUserLoggedIn = sessionManager.fetchAuthToken() != null
+
                 NavHost(
                     navController = navController,
-                    startDestination = "dashboard"
+                    startDestination = if (isUserLoggedIn) "dashboard" else "login"
                 ) {
-                    // ── Dashboard ─────────────────────────────────────────────
+
+                    composable("login") {
+                        LoginScreen(
+                            onLoginSuccess = {
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
                     composable("dashboard") {
                         HomeDashboardScreen(
+                            sessionManager = sessionManager,
                             matricesCount = criticidadState.matrices.size,
                             auditoriasCount = supervisionState.supervisiones.size,
                             bitacorasCount = trazabilidadState.bitacoras.size,
@@ -68,18 +82,21 @@ class MainActivity : ComponentActivity() {
                                 launchSingleTop = true
                                 restoreState = true
                             } },
-                            onNavigateToInstalaciones = { navController.navigate("instalaciones") }
+                            onNavigateToInstalaciones = { navController.navigate("instalaciones") },
+                            onLogout = {
+                                navController.navigate("login") {
+                                    popUpTo("dashboard") { inclusive = true }
+                                }
+                            }
                         )
                     }
 
-                    // ── Catálogo de Instalaciones ─────────────────────────────
                     composable("instalaciones") {
                         InstalacionesScreen(
                             onBack = { navController.popBackStack() }
                         )
                     }
 
-                    // ── Búsqueda Global ───────────────────────────────────────
                     composable("buscar") {
                         BusquedaScreen(
                             criticidadViewModel = criticidadViewModel,
@@ -100,7 +117,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // ── Alertas Globales ──────────────────────────────────────
                     composable("alertas") {
                         AlertasScreen(
                             criticidadViewModel = criticidadViewModel,
@@ -121,7 +137,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // ── Módulo 1: Criticidad Ambiental ────────────────────────
                     composable("criticidad") {
                         CriticidadScreen(navController = navController, viewModel = criticidadViewModel)
                     }
@@ -130,7 +145,6 @@ class MainActivity : ComponentActivity() {
                         CriticidadDetalleScreen(matrizId = matrizId, navController = navController, viewModel = criticidadViewModel)
                     }
 
-                    // ── Módulo 2: Supervisión en Campo ────────────────────────
                     composable("supervision") {
                         SupervisionScreen(navController = navController, viewModel = supervisionViewModel)
                     }
@@ -139,7 +153,6 @@ class MainActivity : ComponentActivity() {
                         SupervisionDetalleScreen(supervisionId = supId, navController = navController, viewModel = supervisionViewModel)
                     }
 
-                    // ── Módulo 3: Trazabilidad de Residuos ───────────────────
                     composable("trazabilidad") {
                         TrazabilidadScreen(navController = navController, viewModel = trazabilidadViewModel)
                     }

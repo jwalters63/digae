@@ -86,8 +86,7 @@ fun BusquedaScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            
-            // Header: Barra de búsqueda
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

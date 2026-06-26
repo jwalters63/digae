@@ -22,8 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Bottom Sheet: Nueva/Editar Matriz ───────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevaMatrizSheet(
@@ -58,7 +56,7 @@ fun NuevaMatrizSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(
                     modifier = Modifier.size(40.dp).background(FigmaGreenIconBg, RoundedCornerShape(12.dp)),
@@ -77,7 +75,6 @@ fun NuevaMatrizSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Campo: Área / Instalación (Dropdown)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Área / Instalación", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(
@@ -121,7 +118,6 @@ fun NuevaMatrizSheet(
                 }
             }
 
-            // Campo: Actividad
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Actividad principal", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -139,7 +135,6 @@ fun NuevaMatrizSheet(
                 )
             }
 
-            // Selector: Estado
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Estado de la matriz", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(
@@ -175,7 +170,6 @@ fun NuevaMatrizSheet(
 
             Spacer(Modifier.height(4.dp))
 
-            // Botones
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
                     onClick = onDismiss,
@@ -204,8 +198,6 @@ fun NuevaMatrizSheet(
         }
     }
 }
-
-// ─── Bottom Sheet: Nuevo/Editar Aspecto ──────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -254,7 +246,7 @@ fun NuevoAspectoSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(
                     modifier = Modifier.size(40.dp).background(FigmaGreenIconBg, RoundedCornerShape(12.dp)),
@@ -271,7 +263,6 @@ fun NuevoAspectoSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Campo: Descripción del aspecto
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Aspecto ambiental", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -285,7 +276,6 @@ fun NuevoAspectoSheet(
                 )
             }
 
-            // Campo: Descripción del impacto
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Impacto generado", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -299,7 +289,6 @@ fun NuevoAspectoSheet(
                 )
             }
 
-            // Selector: Tipo de aspecto
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Tipo de recurso afectado", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(
@@ -332,7 +321,6 @@ fun NuevoAspectoSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Sliders G × S × P
             Text("Valores de evaluación (1–5)",
                 fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
 
@@ -340,7 +328,6 @@ fun NuevoAspectoSheet(
             GspSlider("Severidad", severidad, "Alcance temporal y espacial") { severidad = it }
             GspSlider("Probabilidad", probabilidad, "Frecuencia de ocurrencia") { probabilidad = it }
 
-            // Score en tiempo real
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -367,7 +354,6 @@ fun NuevoAspectoSheet(
                 }
             }
 
-            // Botones
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
                     onClick = onDismiss,
@@ -394,8 +380,6 @@ fun NuevoAspectoSheet(
         }
     }
 }
-
-// ─── Slider reutilizable para G/S/P ──────────────────────────────────────────
 
 @Composable
 private fun GspSlider(label: String, value: Float, descripcion: String, onValueChange: (Float) -> Unit) {
@@ -432,8 +416,6 @@ private fun GspSlider(label: String, value: Float, descripcion: String, onValueC
         }
     }
 }
-
-// ─── Diálogo de confirmación de eliminación ───────────────────────────────────
 
 @Composable
 fun ConfirmarEliminarDialog(

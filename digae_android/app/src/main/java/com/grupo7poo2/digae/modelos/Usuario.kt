@@ -15,7 +15,7 @@ abstract class Usuario(
     abstract fun obtenerPerfil(): String
 
     fun cerrarSesion() {
-        // Lógica de cierre de sesión
+
     }
 }
 
@@ -28,9 +28,9 @@ class Administrador(
 
     override fun obtenerPerfil(): String = "Administrador - $areaCargo"
 
-    fun gestionarMatriz() { /* Lógica CRUD matriz */ }
-    fun generarReporte() { /* Lógica de reportes */ }
-    fun configurarSistema() { /* Configuración global */ }
+    fun gestionarMatriz() {  }
+    fun generarReporte() {  }
+    fun configurarSistema() {  }
 }
 
 class UsuarioOperativo(
@@ -42,11 +42,10 @@ class UsuarioOperativo(
 
     override fun obtenerPerfil(): String = "Operativo - $facultad"
 
-    fun registrarResiduo() { /* Restringido a su área */ }
-    fun consultarMatriz() { /* Read-only */ }
+    fun registrarResiduo() {  }
+    fun consultarMatriz() {  }
 }
 
-// --- PATRÓN FACTORY METHOD ---
 object UsuarioFactory {
     fun crearUsuario(
         tipo: String, id: String, nombre: String, correo: String, contrasena: String,

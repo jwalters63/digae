@@ -2,9 +2,8 @@ package com.grupo7poo2.digae.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ── Paleta Figma DIGAE ──────────────────────────────────────────
-val FigmaBackground = Color(0xFFD6E8D8) // Fondo general app shell
-val FigmaAppBackground = Color(0xFFF4F7F4) // Fondo contenido
+val FigmaBackground = Color(0xFFD6E8D8) 
+val FigmaAppBackground = Color(0xFFF4F7F4) 
 
 val FigmaGreenPrimary = Color(0xFF1B6B3A)
 val FigmaGreenLight = Color(0xFFE8F5E9)
@@ -25,7 +24,6 @@ val FigmaTextPrimary = Color(0xFF1A1C1A)
 val FigmaTextSecondary = Color(0xFF5A6E5C)
 val FigmaTextLight = Color(0xFF8EAD94)
 
-// Neutros heredados del Material 3
 val Green10  = Color(0xFF002106)
 val Green20  = Color(0xFF003910)
 val Green30  = Color(0xFF00531A)

@@ -15,10 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Implementación del servicio de Supervisión/Auditoría.
- * Gestiona formularios de inspección de campo.
- */
 @Service
 @Transactional
 public class SupervisionServiceImpl implements SupervisionService {
@@ -65,9 +61,7 @@ public class SupervisionServiceImpl implements SupervisionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "email", email));
 
         if (!(currentUser instanceof com.digae.sga.entity.Administrador)) {
-            // Operativos cannot see supervisiones based on doc: only Admin can do it.
-            // If they can see it, maybe they can only see their own area.
-            // The doc says: Administrador puede "ejecutar y editar supervisiones de campo". Operativo no tiene acceso a este módulo.
+
             throw new IllegalArgumentException("Solo los administradores pueden acceder a supervisiones");
         }
 
@@ -80,7 +74,7 @@ public class SupervisionServiceImpl implements SupervisionService {
     @Override
     @Transactional(readOnly = true)
     public List<SupervisionResponseDTO> obtenerSupervisionesPorInspector(Long inspectorId) {
-        // Verificar que el inspector existe
+
         if (!usuarioRepository.existsById(inspectorId)) {
             throw new ResourceNotFoundException("Usuario (Inspector)", "id", inspectorId);
         }
@@ -119,9 +113,6 @@ public class SupervisionServiceImpl implements SupervisionService {
         supervisionRepository.deleteById(id);
     }
 
-    /**
-     * Resuelve el inspector (Usuario) a partir de su ID.
-     */
     private Usuario resolverInspector(Long inspectorId) {
         return usuarioRepository.findById(inspectorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario (Inspector)", "id", inspectorId));

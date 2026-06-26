@@ -33,8 +33,6 @@ import androidx.navigation.compose.rememberNavController
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Helpers de color ─────────────────────────────────────────────────────────
-
 private fun estadoBitacoraColor(e: EstadoBitacora) = when (e) {
     EstadoBitacora.BORRADOR    -> Color(0xFF757575)
     EstadoBitacora.EN_PROCESO  -> Color(0xFFF57F17)
@@ -71,8 +69,6 @@ private fun tipoResiduoIcono(t: TipoResiduo): ImageVector = when (t) {
     TipoResiduo.BIOINFECCIOSO -> Icons.Outlined.Biotech
     TipoResiduo.ESPECIAL      -> Icons.Outlined.ElectricalServices
 }
-
-// ─── Pantalla 1: Lista de Bitácoras ──────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -154,8 +150,6 @@ fun TrazabilidadScreen(
     }
 }
 
-// ─── Resumen ─────────────────────────────────────────────────────────────────
-
 @Composable
 private fun ResumenTrazabilidadCard(bitacoras: List<BitacoraResiduos>) {
     val completadas   = bitacoras.count { it.estado == EstadoBitacora.COMPLETADA || it.estado == EstadoBitacora.ENVIADA }
@@ -211,8 +205,6 @@ private fun EstadoVacioBitacoras(onNueva: () -> Unit) {
         }
     }
 }
-
-// ─── Tarjeta de bitácora ──────────────────────────────────────────────────────
 
 @Composable
 private fun BitacoraCard(
@@ -318,8 +310,6 @@ private fun TrazChip(icon: ImageVector, texto: String, color: Color) {
         Text(texto, fontSize = 11.sp, color = color, fontWeight = FontWeight.Medium)
     }
 }
-
-// ─── Pantalla 2: Detalle / Residuos ──────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -572,8 +562,6 @@ private fun ResiduoCard(residuo: Residuo, onEditar: () -> Unit, onEliminar: () -
         }
     }
 }
-
-// ─── Previews ─────────────────────────────────────────────────────────────────
 
 @Preview(showBackground = true)
 @Composable

@@ -21,8 +21,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Bottom Sheet: Nueva / Editar Bitácora ────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevaBitacoraSheet(
@@ -56,7 +54,7 @@ fun NuevaBitacoraSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(modifier = Modifier.size(40.dp).background(FigmaTealIconBg, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center) {
@@ -103,7 +101,6 @@ fun NuevaBitacoraSheet(
             FormField("Responsable de entrega", responsable, { responsable = it },
                 "Nombre de quien entrega", Icons.Outlined.Person, FigmaTealPrimary)
 
-            // Estado
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Estado de la bitácora", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = estadoExp, onExpandedChange = { estadoExp = it }) {
@@ -138,8 +135,6 @@ fun NuevaBitacoraSheet(
     }
 }
 
-// ─── Bottom Sheet: Nuevo / Editar Residuo ────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevoResiduoSheet(
@@ -172,7 +167,7 @@ fun NuevoResiduoSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(modifier = Modifier.size(40.dp).background(FigmaTealIconBg, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center) {
@@ -187,7 +182,6 @@ fun NuevoResiduoSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Descripción
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Descripción del residuo", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -200,7 +194,6 @@ fun NuevoResiduoSheet(
                 )
             }
 
-            // Tipo de residuo
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Tipo de residuo", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = tipoExp, onExpandedChange = { tipoExp = it }) {
@@ -226,7 +219,7 @@ fun NuevoResiduoSheet(
                         }
                     }
                 }
-                // Advertencia si es peligroso
+
                 if (tipo.peligroso) {
                     Row(modifier = Modifier.fillMaxWidth()
                         .background(Color(0xFFFFEBEE), RoundedCornerShape(8.dp))
@@ -239,7 +232,6 @@ fun NuevoResiduoSheet(
                 }
             }
 
-            // Peso + Unidad en la misma fila
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(modifier = Modifier.weight(2f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Peso / Cantidad", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
@@ -274,7 +266,6 @@ fun NuevoResiduoSheet(
                 }
             }
 
-            // Peso en kg equivalente
             val pesoKg = pesoStr.toDoubleOrNull()?.let { v ->
                 when (unidad) { UnidadPeso.KG -> v; UnidadPeso.TON -> v * 1000; UnidadPeso.LB -> v * 0.453592 }
             }
@@ -282,7 +273,6 @@ fun NuevoResiduoSheet(
                 Text("≈ ${"%.2f".format(pesoKg)} kg", fontSize = 12.sp, color = FigmaTealPrimary)
             }
 
-            // Observación
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Observaciones (opcional)", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -310,11 +300,6 @@ fun NuevoResiduoSheet(
         }
     }
 }
-
-
-
-
-// ─── Campo de texto reutilizable ──────────────────────────────────────────────
 
 @Composable
 private fun FormField(

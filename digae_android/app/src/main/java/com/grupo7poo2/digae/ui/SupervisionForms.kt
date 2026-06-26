@@ -20,8 +20,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.grupo7poo2.digae.modelos.*
 import com.grupo7poo2.digae.ui.theme.*
 
-// ─── Bottom Sheet: Nueva / Editar Supervisión ─────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevaSupervisionSheet(
@@ -56,7 +54,7 @@ fun NuevaSupervisionSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(modifier = Modifier.size(40.dp).background(FigmaBlueIconBg, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center) {
@@ -72,8 +70,6 @@ fun NuevaSupervisionSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Área / Instalación
-            // Área / Instalación
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Área / Instalación", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = instalacionExp, onExpandedChange = { instalacionExp = it }) {
@@ -99,7 +95,6 @@ fun NuevaSupervisionSheet(
                 }
             }
 
-            // Supervisor
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Supervisor responsable", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -113,7 +108,6 @@ fun NuevaSupervisionSheet(
                 )
             }
 
-            // Tipo de supervisión
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Tipo de supervisión", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = tipoExp, onExpandedChange = { tipoExp = it }) {
@@ -133,7 +127,6 @@ fun NuevaSupervisionSheet(
                 }
             }
 
-            // Estado
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Estado", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = estadoExp, onExpandedChange = { estadoExp = it }) {
@@ -155,7 +148,6 @@ fun NuevaSupervisionSheet(
 
             Spacer(Modifier.height(4.dp))
 
-            // Botones
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -173,8 +165,6 @@ fun NuevaSupervisionSheet(
         }
     }
 }
-
-// ─── Bottom Sheet: Nuevo / Editar Ítem ───────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,7 +193,7 @@ fun NuevoItemSupervisionSheet(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(modifier = Modifier.size(40.dp).background(FigmaBlueIconBg, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center) {
@@ -219,7 +209,6 @@ fun NuevoItemSupervisionSheet(
 
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // Descripción
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Descripción del ítem", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 OutlinedTextField(
@@ -232,7 +221,6 @@ fun NuevoItemSupervisionSheet(
                 )
             }
 
-            // Categoría
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Categoría", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FigmaTextPrimary)
                 ExposedDropdownMenuBox(expanded = categoriaExp, onExpandedChange = { categoriaExp = it }) {
@@ -254,7 +242,6 @@ fun NuevoItemSupervisionSheet(
 
             Spacer(Modifier.height(4.dp))
 
-            // Botones
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = FigmaTextSecondary)) { Text("Cancelar") }

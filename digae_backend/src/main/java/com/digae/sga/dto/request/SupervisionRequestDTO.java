@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * DTO de request para crear o actualizar un formulario de Supervisión.
- */
 @Getter
 @Setter
 @NoArgsConstructor

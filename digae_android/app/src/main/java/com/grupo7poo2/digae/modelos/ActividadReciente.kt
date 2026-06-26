@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ─── Enums del módulo de actividad ────────────────────────────────────────────
-
 enum class ModuloApp(val label: String) {
     CRITICIDAD("Criticidad Ambiental"),
     SUPERVISION("Supervisión en Campo"),
@@ -18,18 +16,16 @@ enum class TipoAccion(val label: String) {
     ELIMINAR("eliminó")
 }
 
-// ─── Modelo de actividad reciente ─────────────────────────────────────────────
-
 data class ActividadReciente(
     val id: String,
-    val titulo: String,           // Nombre del recurso (ej. "Matriz MAT-001")
-    val descripcion: String,      // Descripción corta (ej. "Facultad de Ingeniería")
+    val titulo: String,           
+    val descripcion: String,      
     val autor: String,
     val timestamp: Date = Date(),
     val modulo: ModuloApp,
     val tipoAccion: TipoAccion
 ) {
-    /** Texto relativo del timestamp: "Hace 2 min", "Hace 1 h", etc. */
+
     fun tiempoRelativo(): String {
         val diffMs = Date().time - timestamp.time
         val mins   = diffMs / 60_000
@@ -44,6 +40,5 @@ data class ActividadReciente(
         }
     }
 
-    /** Texto corto para mostrar en la tarjeta del feed */
     fun textoFeed(): String = "${tipoAccion.label.replaceFirstChar { it.uppercase() }}: $titulo"
 }

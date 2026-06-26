@@ -7,10 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-/**
- * DTO de request para crear o actualizar un Usuario.
- * Incluye validaciones con Bean Validation.
- */
 @Getter
 @Setter
 @NoArgsConstructor

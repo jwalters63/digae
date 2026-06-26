@@ -21,8 +21,7 @@ public class RegisterRequestDTO {
     @NotBlank(message = "El apellido es requerido")
     private String apellido;
 
-    @NotBlank(message = "El email es requerido")
-    @Email(message = "Debe ser un email válido")
+    @NotBlank(message = "El email/usuario es requerido")
     private String email;
 
     @NotBlank(message = "La contraseña es requerida")
@@ -31,6 +30,5 @@ public class RegisterRequestDTO {
     @NotNull(message = "El rol es requerido")
     private RolUsuario rol;
 
-    // Solo obligatorio si el rol es OPERATIVO
     private Long facultadId;
 }

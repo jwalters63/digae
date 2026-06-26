@@ -7,10 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Entidad JPA que representa un formulario de supervisión/auditoría de campo.
- * Evalúa criterios de infraestructura, manejo de residuos y eficiencia operativa.
- */
 @Entity
 @Table(name = "supervisiones")
 @Getter

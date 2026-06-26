@@ -6,7 +6,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-// ── Esquema de color claro — Institucional Ambiental ────────────────────────
 private val LightColorScheme = lightColorScheme(
     primary               = Green40,
     onPrimary             = Green10,
@@ -40,7 +39,6 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant        = NeutralVariant80,
 )
 
-// ── Esquema de color oscuro — Institucional Ambiental ───────────────────────
 private val DarkColorScheme = darkColorScheme(
     primary               = Green80,
     onPrimary             = Green20,
@@ -77,7 +75,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun DIGAETheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color deshabilitado para preservar la identidad institucional
+
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme

@@ -5,10 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.scheduling.annotation.EnableAsync;
 
-/**
- * Clase principal del Sistema de Gestión Ambiental DIGAE.
- * Punto de entrada de la aplicación Spring Boot.
- */
 @SpringBootApplication
 @EnableAsync
 public class DigaeApplication {

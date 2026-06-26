@@ -10,17 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para la Supervisión/Auditoría del sistema DIGAE.
- *
- * Endpoints:
- *   GET    /api/v1/supervisiones                  → Lista todas (200)
- *   GET    /api/v1/supervisiones/{id}              → Obtiene por ID (200 / 404)
- *   POST   /api/v1/supervisiones                  → Crea inspección (201 / 400)
- *   PUT    /api/v1/supervisiones/{id}              → Actualiza (200 / 400 / 404)
- *   DELETE /api/v1/supervisiones/{id}              → Elimina (204 / 404)
- *   GET    /api/v1/supervisiones/inspector/{id}    → Filtra por inspector (200)
- */
 @RestController
 @RequestMapping("/api/v1/supervisiones")
 public class SupervisionController {

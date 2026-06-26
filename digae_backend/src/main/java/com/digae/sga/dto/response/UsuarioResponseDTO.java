@@ -5,10 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO de response para Usuario.
- * Excluye la contraseña por seguridad.
- */
 @Getter
 @Setter
 @NoArgsConstructor

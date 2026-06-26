@@ -8,10 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Entidad JPA que representa un registro en la bitácora de residuos sólidos.
- * Incluye clasificación, peso, área generadora, empresa recolectora y firma digital.
- */
 @Entity
 @Table(name = "bitacora_residuos")
 @Getter

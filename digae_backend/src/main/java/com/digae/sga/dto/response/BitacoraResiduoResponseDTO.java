@@ -8,10 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * DTO de response para BitacoraResiduo.
- * Incluye el nombre del usuario que registró la bitácora.
- */
 @Getter
 @Setter
 @NoArgsConstructor

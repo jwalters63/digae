@@ -3,10 +3,6 @@ package com.digae.sga.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-/**
- * Excepción lanzada cuando un recurso solicitado no se encuentra.
- * El GlobalExceptionHandler la captura y retorna HTTP 404.
- */
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class ResourceNotFoundException extends RuntimeException {
 
