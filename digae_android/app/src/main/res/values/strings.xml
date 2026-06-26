@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DIGAE</string>
+
+    <!-- Top Bar -->
+    <string name="topbar_title">GESTIÓN DIGAE</string>
+    <string name="cd_menu">Abrir menú de navegación</string>
+    <string name="cd_perfil">Ver perfil de usuario</string>
+
+    <!-- Sección de bienvenida -->
+    <string name="saludo_bienvenida">Bienvenido/a,</string>
+    <string name="nombre_usuario">Administrador</string>
+    <string name="rol_usuario">Administrador de Perfil · Facultad de Ingeniería</string>
+    <string name="chip_rol">Administrador</string>
+    <string name="chip_area">Facultad de Ingeniería</string>
+
+    <!-- Sección de módulos -->
+    <string name="seccion_modulos">Módulos del Sistema</string>
+
+    <!-- Tarjeta 1: Criticidad Ambiental -->
+    <string name="modulo1_titulo">Criticidad Ambiental</string>
+    <string name="modulo1_subtitulo">Matrices de aspectos e impactos</string>
+    <string name="modulo1_cd">Acceder al módulo de Criticidad Ambiental</string>
+
+    <!-- Tarjeta 2: Supervisión en Campo -->
+    <string name="modulo2_titulo">Supervisión en Campo</string>
+    <string name="modulo2_subtitulo">Auditorías de infraestructura y energía</string>
+    <string name="modulo2_cd">Acceder al módulo de Supervisión en Campo</string>
+
+    <!-- Tarjeta 3: Trazabilidad de Residuos -->
+    <string name="modulo3_titulo">Trazabilidad de Residuos</string>
+    <string name="modulo3_subtitulo">Registro y cadena de custodia</string>
+    <string name="modulo3_cd">Acceder al módulo de Trazabilidad de Residuos</string>
+</resources>
