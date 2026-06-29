@@ -68,7 +68,6 @@ fun HomeDashboardScreen(
     onNavigateToInstalaciones: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
     val actividades by ActividadRepository.actividades.collectAsStateWithLifecycle()
@@ -78,10 +77,18 @@ fun HomeDashboardScreen(
     val userRole = sessionManager.fetchUserRole() ?: "USUARIO"
     val userInitials = if (userName.isNotBlank()) userName.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.joinToString("").take(2) else "US"
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
+    var drawerKey by remember { mutableStateOf(0) }
+    DisposableEffect(Unit) {
+        drawerKey++
+        onDispose { }
+    }
+
+    key(drawerKey) {
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
                 drawerContainerColor = Color.White,
                 drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
                 modifier = Modifier.width(280.dp)
@@ -92,13 +99,17 @@ fun HomeDashboardScreen(
                     userInitials = userInitials,
                     onClose = { scope.launch { drawerState.close() } },
                     onNavigateToInstalaciones = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToInstalaciones()
+                        scope.launch { 
+                            drawerState.close()
+                            onNavigateToInstalaciones()
+                        }
                     },
                     onLogout = {
-                        sessionManager.clearSession()
-                        scope.launch { drawerState.close() }
-                        onLogout()
+                        scope.launch { 
+                            drawerState.close()
+                            sessionManager.clearSession()
+                            onLogout()
+                        }
                     }
                 )
             }
@@ -133,6 +144,8 @@ fun HomeDashboardScreen(
                         scope.launch { 
                             try {
                                 drawerState.open() 
+                            } catch (e: kotlinx.coroutines.CancellationException) {
+                                throw e
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -325,6 +338,7 @@ fun HomeDashboardScreen(
                 }
             }
         }
+    }
     }
 }
 
@@ -548,7 +562,7 @@ fun DrawerContent(
                 .fillMaxWidth()
                 .padding(16.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { }
+                .clickable { onLogout() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

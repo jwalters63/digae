@@ -30,4 +30,12 @@ interface ApiService {
     @POST("api/v1/auth/login")
     suspend fun login(@Body request: com.grupo7poo2.digae.network.dto.LoginRequestDTO): Response<com.grupo7poo2.digae.network.dto.AuthResponseDTO>
 
+    @GET("api/instalaciones")
+    suspend fun obtenerInstalaciones(): Response<List<com.grupo7poo2.digae.modelos.Instalacion>>
+
+    @POST("api/instalaciones")
+    suspend fun crearInstalacion(@Body instalacion: com.grupo7poo2.digae.modelos.Instalacion): Response<com.grupo7poo2.digae.modelos.Instalacion>
+
+    @retrofit2.http.DELETE("api/instalaciones/{id}")
+    suspend fun eliminarInstalacion(@retrofit2.http.Path("id") id: String): Response<Void>
 }
