@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.ksp)
 }
 
 android {
@@ -25,6 +26,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    ksp {
+        arg("room.generateKotlin", "true")
+    }
+
     buildFeatures {
       compose = true
       aidl = false
@@ -39,8 +45,10 @@ android {
     }
 }
 
-kotlin {
-    jvmToolchain(17)
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
@@ -88,4 +96,9 @@ dependencies {
   implementation(libs.supabase.auth)
   implementation(libs.supabase.postgrest)
   implementation(libs.ktor.client.android)
+
+  // Room
+  implementation(libs.androidx.room.runtime)
+  implementation(libs.androidx.room.ktx)
+  ksp(libs.androidx.room.compiler)
 }

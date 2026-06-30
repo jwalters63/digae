@@ -6,8 +6,12 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.example.digae.data.local.DigaeDatabase
 
-class AuthRepository(private val supabaseClient: SupabaseClient) {
+class AuthRepository(
+    private val supabaseClient: SupabaseClient,
+    private val database: DigaeDatabase
+) {
 
     // Retorna el usuario actual si la sesión está activa
     fun currentUser(): UserInfo? {
@@ -34,6 +38,7 @@ class AuthRepository(private val supabaseClient: SupabaseClient) {
         return withContext(Dispatchers.IO) {
             try {
                 supabaseClient.auth.signOut()
+                database.clearAllTables()
                 Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(e)

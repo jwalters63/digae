@@ -45,4 +45,11 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             }
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            repository.logout()
+            _authState.value = AuthState.Idle
+        }
+    }
 }

@@ -75,7 +75,7 @@ fun BarTransitionOverlay(
             // Fase 2: Capa verde sube más rápido (más agresivo)
             yOffset.animateTo(
                 targetValue = -(screenHeightPx + 400f), // Sube completamente fuera de la pantalla
-                animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing)
             )
 
             onTransitionFinished()

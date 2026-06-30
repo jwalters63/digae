@@ -18,6 +18,7 @@ import com.example.digae.ui.components.BarTransitionOverlay
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 
@@ -25,6 +26,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
 fun MainNavigation() {
+  val context = LocalContext.current
+  val factory = remember { ViewModelFactory(context) }
   val backStack = rememberNavBackStack(Main)
   var isTransitioning by remember { mutableStateOf(false) }
 
@@ -35,7 +38,6 @@ fun MainNavigation() {
       entryProvider =
         entryProvider {
           entry<Main> {
-            val factory = ViewModelFactory()
             val viewModel: AuthViewModel = viewModel(factory = factory)
             
             SplashScreenWrapper {
@@ -46,8 +48,13 @@ fun MainNavigation() {
             }
           }
           entry<DashboardKey> {
+              val dashboardViewModel: com.example.digae.ui.dashboard.DashboardViewModel = viewModel(factory = factory)
               DashboardScreen(
-                  onLogoutClick = { backStack.removeLastOrNull() }
+                  viewModel = dashboardViewModel,
+                  onLogoutClick = { 
+                      dashboardViewModel.logout()
+                      backStack.removeLastOrNull() 
+                  }
               )
           }
         },

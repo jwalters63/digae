@@ -111,7 +111,7 @@ fun DashboardScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "juan.perez@uam.edu.ni",
+                        text = uiState.userEmail,
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 14.sp
                     )
