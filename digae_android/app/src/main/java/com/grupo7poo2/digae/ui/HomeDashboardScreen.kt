@@ -99,17 +99,11 @@ fun HomeDashboardScreen(
                     userInitials = userInitials,
                     onClose = { scope.launch { drawerState.close() } },
                     onNavigateToInstalaciones = {
-                        scope.launch { 
-                            drawerState.close()
-                            onNavigateToInstalaciones()
-                        }
+                        onNavigateToInstalaciones()
                     },
                     onLogout = {
-                        scope.launch { 
-                            drawerState.close()
-                            sessionManager.clearSession()
-                            onLogout()
-                        }
+                        sessionManager.clearSession()
+                        onLogout()
                     }
                 )
             }
