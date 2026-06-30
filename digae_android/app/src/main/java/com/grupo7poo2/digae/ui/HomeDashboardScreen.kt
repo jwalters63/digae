@@ -459,8 +459,7 @@ fun BottomNavBar(activeNav: Int, onNavSelected: (Int) -> Unit) {
         val navItems = listOf(
             Triple(Icons.Outlined.Home, "Inicio", 0),
             Triple(Icons.Outlined.Search, "Buscar", 1),
-            Triple(Icons.Outlined.Notifications, "Alertas", 2),
-            Triple(Icons.Outlined.Settings, "Ajustes", 3)
+            Triple(Icons.Outlined.Notifications, "Alertas", 2)
         )
         navItems.forEach { (icon, label, index) ->
             val isActive = activeNav == index
@@ -523,11 +522,8 @@ fun DrawerContent(
         Column(modifier = Modifier.padding(vertical = 8.dp).weight(1f)) {
             val items = listOf(
                 Pair(Icons.Outlined.Home, "Tablero"),
-                Pair(Icons.Outlined.Assessment, "Reportes"),
                 Pair(Icons.Outlined.Business, "Instalaciones"),
-                Pair(Icons.Outlined.Description, "Documentación"),
-                Pair(Icons.Outlined.Notifications, "Notificaciones"),
-                Pair(Icons.Outlined.Settings, "Configuración")
+                Pair(Icons.Outlined.Notifications, "Notificaciones")
             )
             items.forEachIndexed { index, (icon, label) ->
                 val isActive = index == 0
@@ -538,7 +534,7 @@ fun DrawerContent(
                         .clip(RoundedCornerShape(50))
                         .background(if (isActive) FigmaGreenLight else Color.Transparent)
                         .clickable {
-                            if (index == 2) onNavigateToInstalaciones()
+                            if (index == 1) onNavigateToInstalaciones()
                         }
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
