@@ -1,6 +1,7 @@
 package com.grupo7poo2.digae.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -65,7 +66,8 @@ fun HomeDashboardScreen(
     onModulo3Click: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToAlertas: () -> Unit = {},
-    onOpenMenu: () -> Unit = {}
+    onNavigateToInstalaciones: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
@@ -82,7 +84,8 @@ fun HomeDashboardScreen(
             bottomBar = {
                 BottomNavBar(activeNav) { index ->
                     if (index == 1) onNavigateToSearch()
-                    else if (index == 2) onNavigateToAlertas()
+                    else if (index == 2) onNavigateToInstalaciones()
+                    else if (index == 3) onNavigateToAlertas()
                     else activeNav = index
                 }
             }
@@ -94,41 +97,25 @@ fun HomeDashboardScreen(
                     .verticalScroll(rememberScrollState())
             ) {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(FigmaGreenPrimary)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    androidx.compose.foundation.layout.Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clickable(
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                indication = null,
-                                onClick = onOpenMenu
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = Color.White)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.EnergySavingsLeaf, contentDescription = null, tint = Color(0xFFA5D6A7), modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "SIG DIGAE",
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 18.sp,
-                            letterSpacing = 1.2.sp
+                TopAppBar(
+                    title = {
+                        Image(
+                            painter = androidx.compose.ui.res.painterResource(id = com.grupo7poo2.digae.R.drawable.logo_digae_alt),
+                            contentDescription = "Logo DIGAE",
+                            modifier = Modifier.height(56.dp).wrapContentWidth(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
                         )
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Outlined.AccountCircle, contentDescription = "Perfil", tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
+                    },
+                    navigationIcon = {
+                        // Hamburguesa removida definitivamente
+                    },
+                    actions = {
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Outlined.AccountCircle, contentDescription = "Perfil", tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = FigmaGreenPrimary)
+                )
 
                 Box(modifier = Modifier
                     .fillMaxWidth()
@@ -294,6 +281,18 @@ fun HomeDashboardScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Button(
+                        onClick = { onLogout() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Red40),
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Cerrar sesión", tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cerrar Sesión", color = Color.White, fontWeight = FontWeight.Medium)
+                    }
 
                     Spacer(modifier = Modifier.height(80.dp))
                 }
@@ -425,7 +424,8 @@ fun BottomNavBar(activeNav: Int, onNavSelected: (Int) -> Unit) {
         val navItems = listOf(
             Triple(Icons.Outlined.Home, "Inicio", 0),
             Triple(Icons.Outlined.Search, "Buscar", 1),
-            Triple(Icons.Outlined.Notifications, "Alertas", 2)
+            Triple(Icons.Outlined.Business, "Instalaciones", 2),
+            Triple(Icons.Outlined.Notifications, "Alertas", 3)
         )
         navItems.forEach { (icon, label, index) ->
             val isActive = activeNav == index

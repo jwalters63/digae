@@ -33,6 +33,7 @@ fun BusquedaScreen(
     supervisionViewModel: SupervisionViewModel,
     trazabilidadViewModel: TrazabilidadViewModel,
     onNavigateToHome: () -> Unit,
+    onNavigateToInstalaciones: () -> Unit,
     onNavigateToAlertas: () -> Unit,
     onMatrizClick: (String) -> Unit,
     onSupervisionClick: (String) -> Unit,
@@ -81,7 +82,8 @@ fun BusquedaScreen(
         bottomBar = {
             BottomNavBar(activeNav = 1) { index ->
                 if (index == 0) onNavigateToHome()
-                else if (index == 2) onNavigateToAlertas()
+                else if (index == 2) onNavigateToInstalaciones()
+                else if (index == 3) onNavigateToAlertas()
             }
         }
     ) { innerPadding ->

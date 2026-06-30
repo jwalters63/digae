@@ -30,6 +30,7 @@ fun AlertasScreen(
     trazabilidadViewModel: TrazabilidadViewModel,
     onNavigateToHome: () -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToInstalaciones: () -> Unit,
     onMatrizClick: (String) -> Unit,
     onSupervisionClick: (String) -> Unit,
     onBitacoraClick: (String) -> Unit
@@ -59,9 +60,10 @@ fun AlertasScreen(
     Scaffold(
         containerColor = FigmaAppBackground,
         bottomBar = {
-            BottomNavBar(activeNav = 2) { index ->
+            BottomNavBar(activeNav = 3) { index ->
                 if (index == 0) onNavigateToHome()
                 else if (index == 1) onNavigateToSearch()
+                else if (index == 2) onNavigateToInstalaciones()
             }
         }
     ) { innerPadding ->

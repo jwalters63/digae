@@ -106,8 +106,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                var isDrawerOpen by androidx.compose.runtime.remember { mutableStateOf(false) }
-                
+
                 val userName = sessionManager.fetchUserName() ?: "Usuario"
                 val userEmail = sessionManager.fetchUserEmail() ?: ""
                 val userInitials = if (userName.isNotBlank()) userName.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.joinToString("").take(2) else "US"
@@ -148,9 +147,16 @@ class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                     restoreState = true
                                 } },
-                                onOpenMenu = {
-                                    android.util.Log.d("DRAWER_DEBUG", ">>> onOpenMenu CLICKED, setting isDrawerOpen=true")
-                                    isDrawerOpen = true
+                                onNavigateToInstalaciones = {
+                                    navController.navigate("instalaciones") {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onLogout = {
+                                    sessionManager.clearSession()
+                                    navController.navigate("login") {
+                                        popUpTo(navController.graph.id) { inclusive = true }
+                                    }
                                 }
                             )
                         }
@@ -168,6 +174,9 @@ class MainActivity : ComponentActivity() {
                             trazabilidadViewModel = trazabilidadViewModel,
                             onNavigateToHome = { navController.navigate("dashboard") {
                                 popUpTo("dashboard") { inclusive = false }
+                                launchSingleTop = true
+                            } },
+                            onNavigateToInstalaciones = { navController.navigate("instalaciones") {
                                 launchSingleTop = true
                             } },
                             onNavigateToAlertas = { navController.navigate("alertas") {
@@ -194,6 +203,9 @@ class MainActivity : ComponentActivity() {
                                 popUpTo("dashboard") { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
+                            } },
+                            onNavigateToInstalaciones = { navController.navigate("instalaciones") {
+                                launchSingleTop = true
                             } },
                             onMatrizClick = { id -> navController.navigate("criticidad/$id") },
                             onSupervisionClick = { id -> navController.navigate("supervision/$id") },
@@ -225,63 +237,7 @@ class MainActivity : ComponentActivity() {
                         TrazabilidadDetalleScreen(bitacoraId = bitId, navController = navController, viewModel = trazabilidadViewModel)
                     }
                 } // End of NavHost
-                    
-                    // The custom Drawer overlay drawn ON TOP of the NavHost
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = isDrawerOpen,
-                        enter = androidx.compose.animation.fadeIn(),
-                        exit = androidx.compose.animation.fadeOut(),
-                        modifier = androidx.compose.ui.Modifier.fillMaxSize()
-                    ) {
-                        androidx.compose.foundation.layout.Box(
-                            modifier = androidx.compose.ui.Modifier.fillMaxSize()
-                        ) {
-                            // Scrim PRIMERO, ocupa toda la pantalla y es clickeable para cerrar
-                            androidx.compose.foundation.layout.Box(
-                                modifier = androidx.compose.ui.Modifier
-                                    .fillMaxSize()
-                                    .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f))
-                                    .clickable(
-                                        interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                        indication = null
-                                    ) { isDrawerOpen = false }
-                            )
-
-                            // Drawer panel ENCIMA, alineado a la izquierda
-                            androidx.compose.foundation.layout.Box(
-                                modifier = androidx.compose.ui.Modifier
-                                    .align(androidx.compose.ui.Alignment.CenterStart)
-                                    .fillMaxHeight()
-                                    .width(280.dp)
-                                    .background(androidx.compose.ui.graphics.Color.White)
-                                    .clickable(
-                                        interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                        indication = null
-                                    ) { } // bloquea que el click "atraviese" al scrim
-                            ) {
-                                com.grupo7poo2.digae.ui.DrawerContent(
-                                    userName = userName,
-                                    userEmail = userEmail,
-                                    userInitials = userInitials,
-                                    onClose = { isDrawerOpen = false },
-                                    onNavigateToInstalaciones = {
-                                        isDrawerOpen = false
-                                        navController.navigate("instalaciones") {
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    onLogout = {
-                                        isDrawerOpen = false
-                                        sessionManager.clearSession()
-                                        navController.navigate("login") {
-                                            popUpTo(navController.graph.id) { inclusive = true }
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                } // End of Box wrapping NavHost and Drawer
+                } // End of Box wrapping NavHost
             }
         }
     }

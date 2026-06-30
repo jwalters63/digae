@@ -3,6 +3,7 @@ package com.grupo7poo2.digae.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -255,31 +256,17 @@ fun LoginScreenUI(
                     .offset(y = headerOffset.value.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Contenedor blanco con logo
-                Box(
+                Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.grupo7poo2.digae.R.drawable.logo_digae),
+                    contentDescription = "Logo DIGAE",
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.White)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    /* REEMPLAZAR ESTA IMAGEN POR LA DEL NUEVO PROYECTO */
-                    // Image(
-                    //    painter = painterResource(id = R.drawable.tu_logo),
-                    //    contentDescription = "Logo",
-                    //    modifier = Modifier.height(96.dp).wrapContentWidth(),
-                    //    contentScale = ContentScale.FillHeight
-                    // )
-                    Icon(
-                        androidx.compose.material.icons.Icons.Outlined.EnergySavingsLeaf, 
-                        contentDescription = null, 
-                        tint = Teal, 
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
+                        .fillMaxWidth(1.0f) // Ocupa el 90% del ancho disponible en la columna
+                        .clip(RoundedCornerShape(0.dp)),
+                    contentScale = androidx.compose.ui.layout.ContentScale.FillWidth
+                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Sistema de Gestión Ambiental",
