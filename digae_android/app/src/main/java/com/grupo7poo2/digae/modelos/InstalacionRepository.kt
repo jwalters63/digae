@@ -1,50 +1,81 @@
 package com.grupo7poo2.digae.modelos
 
+import com.grupo7poo2.digae.network.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 object InstalacionRepository {
     private val _instalaciones = MutableStateFlow<List<Instalacion>>(emptyList())
     val instalaciones: StateFlow<List<Instalacion>> = _instalaciones.asStateFlow()
 
-    init {
+    private val scope = CoroutineScope(Dispatchers.IO)
 
-        _instalaciones.value = listOf(
-            Instalacion(nombre = "Facultad de Ingeniería", tipo = TipoInstalacion.FACULTAD, ubicacion = "Campus Central, Bloque A"),
-            Instalacion(nombre = "Facultad de Medicina", tipo = TipoInstalacion.FACULTAD, ubicacion = "Campus Central, Bloque C"),
-            Instalacion(nombre = "Laboratorio de Química", tipo = TipoInstalacion.LABORATORIO, ubicacion = "Bloque D, Piso 1"),
-            Instalacion(nombre = "Biblioteca Central", tipo = TipoInstalacion.BIBLIOTECA, ubicacion = "Plaza Principal")
-        )
+    init {
+        cargarDesdeRed()
+    }
+
+    fun cargarDesdeRed() {
+        scope.launch {
+            try {
+                val response = RetrofitClient.apiService.obtenerInstalaciones()
+                if (response.isSuccessful) {
+                    response.body()?.let { lista ->
+                        _instalaciones.value = lista
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun agregar(instalacion: Instalacion) {
-        _instalaciones.update { current ->
-            current + instalacion
+        scope.launch {
+            try {
+                val response = RetrofitClient.apiService.crearInstalacion(instalacion)
+                if (response.isSuccessful) {
+                    response.body()?.let { saved ->
+                        _instalaciones.update { current -> current + saved }
+                        ActividadRepository.registrar(
+                            titulo = saved.nombre,
+                            descripcion = "Instalación agregada al catálogo",
+                            autor = "Administrador del Sistema",
+                            modulo = ModuloApp.CRITICIDAD,
+                            accion = TipoAccion.CREAR
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        ActividadRepository.registrar(
-            titulo = instalacion.nombre,
-            descripcion = "Instalación agregada al catálogo",
-            autor = "Administrador del Sistema", 
-            modulo = ModuloApp.CRITICIDAD, 
-            accion = TipoAccion.CREAR
-        )
     }
 
     fun eliminar(id: String) {
-        val target = _instalaciones.value.find { it.id == id }
-        _instalaciones.update { current ->
-            current.filterNot { it.id == id }
-        }
-        if (target != null) {
-            ActividadRepository.registrar(
-                titulo = target.nombre,
-                descripcion = "Instalación eliminada del catálogo",
-                autor = "Administrador del Sistema",
-                modulo = ModuloApp.CRITICIDAD,
-                accion = TipoAccion.ELIMINAR
-            )
+        scope.launch {
+            try {
+                val target = _instalaciones.value.find { it.id == id }
+                val response = RetrofitClient.apiService.eliminarInstalacion(id)
+                if (response.isSuccessful) {
+                    _instalaciones.update { current -> current.filterNot { it.id == id } }
+                    if (target != null) {
+                        ActividadRepository.registrar(
+                            titulo = target.nombre,
+                            descripcion = "Instalación eliminada del catálogo",
+                            autor = "Administrador del Sistema",
+                            modulo = ModuloApp.CRITICIDAD,
+                            accion = TipoAccion.ELIMINAR
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
