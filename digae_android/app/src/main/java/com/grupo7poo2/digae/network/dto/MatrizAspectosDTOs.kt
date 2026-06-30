@@ -11,6 +11,8 @@ data class MatrizAspectosRequestDTO(
     val facultadId: Long,
     @SerializedName("creadoPorId")
     val creadoPorId: Long,
+    @SerializedName("estado")
+    val estado: String?,
     @SerializedName("aspectos")
     val aspectos: List<AspectAmbientalRequestDTO>
 )
@@ -30,6 +32,8 @@ data class MatrizAspectosResponseDTO(
     val creadoPorId: Long,
     @SerializedName("creadoPorNombreCompleto")
     val creadoPorNombreCompleto: String?,
+    @SerializedName("estado")
+    val estado: String?,
     @SerializedName("aspectos")
     val aspectos: List<AspectAmbientalResponseDTO>?
 )

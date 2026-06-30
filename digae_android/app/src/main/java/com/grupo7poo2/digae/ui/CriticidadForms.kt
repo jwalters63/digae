@@ -110,7 +110,7 @@ fun NuevaMatrizSheet(
                             instalaciones.forEach { inst ->
                                 DropdownMenuItem(
                                     text = { Text(inst.nombre) },
-                                    onClick = { instalacionId = inst.id; instalacionExpanded = false }
+                                    onClick = { instalacionId = inst.id ?: ""; instalacionExpanded = false }
                                 )
                             }
                         }

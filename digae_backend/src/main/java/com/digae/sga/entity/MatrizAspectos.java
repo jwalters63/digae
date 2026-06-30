@@ -29,6 +29,9 @@ public class MatrizAspectos {
     @JoinColumn(name = "facultad_id", nullable = false)
     private Facultad facultad;
 
+    @Column(length = 20)
+    private String estado;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creado_por", nullable = false)
     private Administrador creadoPor;

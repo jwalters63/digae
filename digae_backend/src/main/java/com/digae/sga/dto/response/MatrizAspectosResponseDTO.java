@@ -19,5 +19,6 @@ public class MatrizAspectosResponseDTO {
     private String facultadNombre;
     private Long creadoPorId;
     private String creadoPorNombreCompleto;
+    private String estado;
     private List<AspectAmbientalResponseDTO> aspectos;
 }

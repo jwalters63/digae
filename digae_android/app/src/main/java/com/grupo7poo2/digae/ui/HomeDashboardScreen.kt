@@ -65,8 +65,7 @@ fun HomeDashboardScreen(
     onModulo3Click: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToAlertas: () -> Unit = {},
-    onNavigateToInstalaciones: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onOpenMenu: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     var activeNav by remember { mutableStateOf(0) }
@@ -77,38 +76,7 @@ fun HomeDashboardScreen(
     val userRole = sessionManager.fetchUserRole() ?: "USUARIO"
     val userInitials = if (userName.isNotBlank()) userName.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.joinToString("").take(2) else "US"
 
-    var drawerKey by remember { mutableStateOf(0) }
-    DisposableEffect(Unit) {
-        drawerKey++
-        onDispose { }
-    }
-
-    key(drawerKey) {
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet(
-                drawerContainerColor = Color.White,
-                drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
-                modifier = Modifier.width(280.dp)
-            ) {
-                DrawerContent(
-                    userName = userName,
-                    userEmail = userEmail,
-                    userInitials = userInitials,
-                    onClose = { scope.launch { drawerState.close() } },
-                    onNavigateToInstalaciones = {
-                        onNavigateToInstalaciones()
-                    },
-                    onLogout = {
-                        sessionManager.clearSession()
-                        onLogout()
-                    }
-                )
-            }
-        }
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             containerColor = FigmaAppBackground,
             bottomBar = {
@@ -134,17 +102,16 @@ fun HomeDashboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { 
-                        scope.launch { 
-                            try {
-                                drawerState.open() 
-                            } catch (e: kotlinx.coroutines.CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        } 
-                    }) {
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clickable(
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                indication = null,
+                                onClick = onOpenMenu
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = Color.White)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -332,7 +299,6 @@ fun HomeDashboardScreen(
                 }
             }
         }
-    }
     }
 }
 

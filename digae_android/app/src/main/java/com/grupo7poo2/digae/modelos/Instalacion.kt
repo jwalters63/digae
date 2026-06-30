@@ -11,7 +11,7 @@ enum class TipoInstalacion(val label: String) {
 }
 
 data class Instalacion(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String? = null,
     val nombre: String,
     val tipo: TipoInstalacion,
     val ubicacion: String

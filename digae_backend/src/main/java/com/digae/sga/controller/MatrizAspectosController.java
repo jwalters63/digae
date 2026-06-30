@@ -34,6 +34,12 @@ public class MatrizAspectosController {
         return ResponseEntity.ok(matrizService.findById(id));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MatrizAspectosResponseDTO> update(@PathVariable Long id, @Valid @RequestBody MatrizAspectosRequestDTO requestDTO) {
+        MatrizAspectosResponseDTO response = matrizService.update(id, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         matrizService.delete(id);

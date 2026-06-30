@@ -2,8 +2,8 @@ package com.grupo7poo2.digae.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +31,8 @@ fun InstalacionesScreen(
 ) {
     val instalaciones by InstalacionRepository.instalaciones.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
+
+    var instalacionToDelete by remember { mutableStateOf<Instalacion?>(null) }
 
     Scaffold(
         containerColor = FigmaAppBackground,
@@ -64,14 +66,16 @@ fun InstalacionesScreen(
                     Text("No hay instalaciones registradas", color = FigmaTextSecondary)
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(instalaciones) { instalacion ->
+                    instalaciones.forEach { instalacion ->
                         InstalacionCard(instalacion) {
-                            InstalacionRepository.eliminar(instalacion.id)
+                            instalacionToDelete = instalacion
                         }
                     }
                 }
@@ -88,12 +92,27 @@ fun InstalacionesScreen(
             }
         )
     }
+
+    instalacionToDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { instalacionToDelete = null },
+            title = { Text("¿Eliminar Instalación?") },
+            text = { Text("¿Estás seguro de que deseas eliminar '${target.nombre}'? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = { 
+                    InstalacionRepository.eliminar(target.id ?: "")
+                    instalacionToDelete = null 
+                }) { Text("Eliminar", color = Red40) }
+            },
+            dismissButton = {
+                TextButton(onClick = { instalacionToDelete = null }) { Text("Cancelar", color = FigmaTextSecondary) }
+            }
+        )
+    }
 }
 
 @Composable
-private fun InstalacionCard(instalacion: Instalacion, onDelete: () -> Unit) {
-    var confirmDelete by remember { mutableStateOf(false) }
-
+private fun InstalacionCard(instalacion: Instalacion, onDeleteRequest: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,23 +141,9 @@ private fun InstalacionCard(instalacion: Instalacion, onDelete: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Text(instalacion.tipo.label, fontSize = 11.sp, color = FigmaGreenPrimary, fontWeight = FontWeight.Medium)
         }
-        IconButton(onClick = { confirmDelete = true }) {
+        IconButton(onClick = onDeleteRequest) {
             Icon(Icons.Outlined.Delete, "Eliminar", tint = Red40)
         }
-    }
-
-    if (confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text("¿Eliminar Instalación?") },
-            text = { Text("Esta acción no se puede deshacer. (No afectará a los registros históricos que ya la hayan usado).") },
-            confirmButton = {
-                TextButton(onClick = { onDelete(); confirmDelete = false }) { Text("Eliminar", color = Red40) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmDelete = false }) { Text("Cancelar", color = FigmaTextSecondary) }
-            }
-        )
     }
 }
 

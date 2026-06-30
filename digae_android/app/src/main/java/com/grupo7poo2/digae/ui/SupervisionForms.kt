@@ -88,7 +88,7 @@ fun NuevaSupervisionSheet(
                             DropdownMenuItem(text = { Text("No hay instalaciones registradas", color = FigmaTextLight) }, onClick = { instalacionExp = false })
                         } else {
                             instalaciones.forEach { inst ->
-                                DropdownMenuItem(text = { Text(inst.nombre) }, onClick = { instalacionId = inst.id; instalacionExp = false })
+                                DropdownMenuItem(text = { Text(inst.nombre) }, onClick = { instalacionId = inst.id ?: ""; instalacionExp = false })
                             }
                         }
                     }

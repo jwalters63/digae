@@ -24,6 +24,8 @@ public class MatrizAspectosRequestDTO {
     @NotNull(message = "El ID de la facultad es obligatorio")
     private Long facultadId;
 
+    private String estado;
+
     @NotNull(message = "El ID del administrador (creadoPor) es obligatorio")
     private Long creadoPorId;
 

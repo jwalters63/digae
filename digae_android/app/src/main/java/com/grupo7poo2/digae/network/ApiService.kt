@@ -27,6 +27,12 @@ interface ApiService {
     @POST("api/v1/matrices")
     suspend fun crearMatriz(@Body request: com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO): Response<com.grupo7poo2.digae.network.dto.MatrizAspectosResponseDTO>
 
+    @retrofit2.http.PUT("api/v1/matrices/{id}")
+    suspend fun actualizarMatriz(@retrofit2.http.Path("id") id: Long, @Body request: com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO): Response<com.grupo7poo2.digae.network.dto.MatrizAspectosResponseDTO>
+
+    @retrofit2.http.DELETE("api/v1/matrices/{id}")
+    suspend fun eliminarMatriz(@retrofit2.http.Path("id") id: Long): Response<Void>
+
     @POST("api/v1/auth/login")
     suspend fun login(@Body request: com.grupo7poo2.digae.network.dto.LoginRequestDTO): Response<com.grupo7poo2.digae.network.dto.AuthResponseDTO>
 

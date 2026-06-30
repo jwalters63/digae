@@ -37,6 +37,7 @@
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/entity/Facultad.java
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/entity/MatrizAspectos.java
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/entity/Instalacion.java
+/home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/config/DataSeeder.java
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/entity/BitacoraResiduo.java
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/mapper/BitacoraResiduoMapper.java
 /home/jwalters/UAM/POOII/digae/digae_backend/src/main/java/com/digae/sga/mapper/SupervisionMapper.java

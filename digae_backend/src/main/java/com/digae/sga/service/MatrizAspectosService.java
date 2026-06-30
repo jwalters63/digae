@@ -9,5 +9,6 @@ public interface MatrizAspectosService {
     MatrizAspectosResponseDTO create(MatrizAspectosRequestDTO dto);
     List<MatrizAspectosResponseDTO> findAll();
     MatrizAspectosResponseDTO findById(Long id);
+    MatrizAspectosResponseDTO update(Long id, MatrizAspectosRequestDTO dto);
     void delete(Long id);
 }

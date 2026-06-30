@@ -25,6 +25,7 @@ public final class MatrizAspectosMapper {
                 .fechaEvaluacion(dto.getFechaEvaluacion() != null ? dto.getFechaEvaluacion() : LocalDate.now())
                 .facultad(facultad)
                 .creadoPor(creadoPor)
+                .estado(dto.getEstado() != null ? dto.getEstado() : "BORRADOR")
                 .aspectos(new ArrayList<>())
                 .build();
 
@@ -65,6 +66,7 @@ public final class MatrizAspectosMapper {
                 .facultadNombre(entity.getFacultad().getNombre())
                 .creadoPorId(entity.getCreadoPor().getId())
                 .creadoPorNombreCompleto(entity.getCreadoPor().getNombre() + " " + entity.getCreadoPor().getApellido())
+                .estado(entity.getEstado())
                 .aspectos(entity.getAspectos() == null ? new ArrayList<>() : entity.getAspectos().stream().map(asp -> 
                     AspectAmbientalResponseDTO.builder()
                             .id(asp.getId())

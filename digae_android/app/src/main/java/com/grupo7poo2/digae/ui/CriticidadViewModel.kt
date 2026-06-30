@@ -34,9 +34,6 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
     val uiState: StateFlow<CriticidadUiState> = _uiState.asStateFlow()
 
     private var estrategia: CalculoCriticidadStrategy = MotorCalculoMultiplicativo()
-
-    private val _matrices = mutableListOf<MatrizAspectos>()
-
     private val usuarioActual = "Usuario Actual"
 
     init {
@@ -44,25 +41,28 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun cargarDatosDesdeRed() {
-        _uiState.update { it.copy(isLoading = true) }
+        _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             try {
                 val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.obtenerMatrices()
                 if (response.isSuccessful) {
                     val dtos = response.body() ?: emptyList()
-                    _matrices.clear()
-                    _matrices.addAll(dtos.map { dto ->
+                    val matricesParsed = dtos.map { dto ->
                         val df = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
                         val fechaParsed = try {
                             df.parse(dto.fechaEvaluacion ?: "") ?: Date()
                         } catch (e: Exception) { Date() }
 
+                        val estadoParseado = try {
+                            if (dto.estado != null) EstadoMatriz.valueOf(dto.estado) else EstadoMatriz.BORRADOR
+                        } catch (e: Exception) { EstadoMatriz.BORRADOR }
+
                         val m = MatrizAspectos(
                             id = dto.id.toString(),
-                            instalacionId = dto.facultadNombre ?: "Facultad Desconocida",
+                            instalacionId = dto.facultadId.toString(),
                             actividad = dto.nombre,
                             fechaRegistro = fechaParsed,
-                            estado = EstadoMatriz.APROBADA 
+                            estado = estadoParseado
                         )
                         dto.aspectos?.forEach { aspDto ->
                             val asp = AspectAmbiental(
@@ -86,12 +86,14 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
                             m.agregarAspecto(asp)
                         }
                         m
-                    })
+                    }
+                    _uiState.update { it.copy(matrices = matricesParsed, isLoading = false) }
+                } else {
+                    _uiState.update { it.copy(error = "Error al obtener matrices: ${response.code()}", isLoading = false) }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
-                publicarMatrices()
+                _uiState.update { it.copy(error = "Falla de red al obtener matrices: ${e.message}", isLoading = false) }
             }
         }
     }
@@ -114,17 +116,30 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
 
         viewModelScope.launch {
             try {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                val request = com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO(
+                    nombre = actividad,
+                    fechaEvaluacion = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Date()),
+                    facultadId = instalacionId.toLongOrNull() ?: (sessionManager.fetchUserFacultadId().takeIf { it != -1L } ?: 1L),
+                    creadoPorId = sessionManager.fetchUserId().takeIf { it != -1L } ?: 1L,
+                    estado = estado.name,
+                    aspectos = emptyList() 
+                )
+
                 if (esNueva) {
-                    val request = com.grupo7poo2.digae.network.dto.MatrizAspectosRequestDTO(
-                        nombre = actividad,
-                        fechaEvaluacion = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Date()),
-                        facultadId = sessionManager.fetchUserFacultadId().takeIf { it != -1L } ?: 1L,
-                        creadoPorId = sessionManager.fetchUserId().takeIf { it != -1L } ?: 1L,
-                        aspectos = emptyList() 
-                    )
                     val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.crearMatriz(request)
                     if (!response.isSuccessful) {
-                        println("Error al crear matriz: ${response.code()}")
+                        _uiState.update { it.copy(error = "Error del servidor al crear: ${response.code()}", isLoading = false) }
+                        return@launch
+                    }
+                } else {
+                    val idLong = idExistente.toLongOrNull()
+                    if (idLong != null) {
+                        val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.actualizarMatriz(idLong, request)
+                        if (!response.isSuccessful) {
+                            _uiState.update { it.copy(error = "Error del servidor al editar: ${response.code()}", isLoading = false) }
+                            return@launch
+                        }
                     }
                 }
 
@@ -135,28 +150,50 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
                     modulo = ModuloApp.CRITICIDAD,
                     accion = if (esNueva) TipoAccion.CREAR else TipoAccion.EDITAR
                 )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
+                
                 cargarDatosDesdeRed()
                 cerrarFormMatriz()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.update { it.copy(error = "Falla de red: ${e.message}", isLoading = false) }
             }
         }
     }
 
     fun eliminarMatriz(matrizId: String) {
-        val m = _matrices.find { it.id == matrizId }
-        _matrices.removeAll { it.id == matrizId }
-        m?.let {
-            ActividadRepository.registrar(
-                titulo = "Matriz eliminada — ${it.instalacionId}",
-                descripcion = it.actividad,
-                autor = usuarioActual,
-                modulo = ModuloApp.CRITICIDAD,
-                accion = TipoAccion.ELIMINAR
-            )
+        val m = _uiState.value.matrices.find { it.id == matrizId } ?: return
+        
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                val idLong = matrizId.toLongOrNull()
+                if (idLong != null) {
+                    val response = com.grupo7poo2.digae.network.RetrofitClient.apiService.eliminarMatriz(idLong)
+                    if (!response.isSuccessful) {
+                        _uiState.update { it.copy(error = "No se pudo eliminar en el servidor: ${response.code()}", isLoading = false) }
+                        return@launch
+                    }
+                }
+                
+                _uiState.update { state -> 
+                    state.copy(
+                        matrices = state.matrices.filterNot { it.id == matrizId },
+                        isLoading = false
+                    ) 
+                }
+                
+                ActividadRepository.registrar(
+                    titulo = "Matriz eliminada — ${m.instalacionId}",
+                    descripcion = m.actividad,
+                    autor = usuarioActual,
+                    modulo = ModuloApp.CRITICIDAD,
+                    accion = TipoAccion.ELIMINAR
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.update { it.copy(error = "Falla de red al eliminar: ${e.message}", isLoading = false) }
+            }
         }
-        publicarMatrices()
     }
 
     fun abrirFormNuevoAspecto(matrizId: String) {
@@ -180,7 +217,8 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
         severidad: Int,
         probabilidad: Int
     ) {
-        val matriz = _matrices.find { it.id == matrizId } ?: return
+        val matricesActuales = _uiState.value.matrices
+        val matriz = matricesActuales.find { it.id == matrizId } ?: return
         val aspectoEditandoId = _uiState.value.aspectoEditandoId
 
         val nuevoAspecto = AspectAmbiental(
@@ -195,10 +233,8 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
         )
 
         val aspectosActualizados = if (aspectoEditandoId != null) {
-
             matriz.aspectos.map { if (it.id == aspectoEditandoId) nuevoAspecto else it }
         } else {
-
             matriz.aspectos + nuevoAspecto
         }
 
@@ -211,14 +247,16 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
         )
         aspectosActualizados.forEach { matrizActualizada.agregarAspecto(it) }
 
-        val idx = _matrices.indexOfFirst { it.id == matrizId }
-        if (idx >= 0) _matrices[idx] = matrizActualizada
+        _uiState.update { state ->
+            state.copy(
+                matrices = state.matrices.map { if (it.id == matrizId) matrizActualizada else it }
+            )
+        }
 
-        publicarMatrices()
         cerrarFormAspecto()
         ActividadRepository.registrar(
             titulo = if (aspectoEditandoId == null) "Aspecto registrado — ${descripcion.trim()}" else "Aspecto editado — ${descripcion.trim()}",
-            descripcion = "Matriz: ${_matrices.find { it.id == matrizId }?.instalacionId ?: matrizId}",
+            descripcion = "Matriz: ${matriz.instalacionId}",
             autor = usuarioActual,
             modulo = ModuloApp.CRITICIDAD,
             accion = if (aspectoEditandoId == null) TipoAccion.CREAR else TipoAccion.EDITAR
@@ -226,15 +264,21 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun eliminarAspecto(matrizId: String, aspectoId: String) {
-        val matriz = _matrices.find { it.id == matrizId } ?: return
+        val matricesActuales = _uiState.value.matrices
+        val matriz = matricesActuales.find { it.id == matrizId } ?: return
         val asp = matriz.aspectos.find { it.id == aspectoId }
         val nuevaMatriz = MatrizAspectos(
             id = matriz.id, instalacionId = matriz.instalacionId, actividad = matriz.actividad,
             fechaRegistro = matriz.fechaRegistro, estado = matriz.estado
         )
         matriz.aspectos.filter { it.id != aspectoId }.forEach { nuevaMatriz.agregarAspecto(it) }
-        val idx = _matrices.indexOfFirst { it.id == matrizId }
-        if (idx >= 0) _matrices[idx] = nuevaMatriz
+        
+        _uiState.update { state ->
+            state.copy(
+                matrices = state.matrices.map { if (it.id == matrizId) nuevaMatriz else it }
+            )
+        }
+        
         asp?.let {
             ActividadRepository.registrar(
                 titulo = "Aspecto eliminado — ${it.descripcion}",
@@ -244,21 +288,16 @@ class CriticidadViewModel(application: Application) : AndroidViewModel(applicati
                 accion = TipoAccion.ELIMINAR
             )
         }
-        publicarMatrices()
     }
 
-    fun obtenerMatriz(matrizId: String): MatrizAspectos? = _matrices.find { it.id == matrizId }
+    fun obtenerMatriz(matrizId: String): MatrizAspectos? = _uiState.value.matrices.find { it.id == matrizId }
 
     fun obtenerAspecto(matrizId: String, aspectoId: String): AspectAmbiental? =
-        _matrices.find { it.id == matrizId }?.aspectos?.find { it.id == aspectoId }
+        _uiState.value.matrices.find { it.id == matrizId }?.aspectos?.find { it.id == aspectoId }
 
     fun cambiarEstrategia(nueva: CalculoCriticidadStrategy) {
         estrategia = nueva
         cargarDatosDesdeRed()
-    }
-
-    private fun publicarMatrices() {
-        _uiState.update { it.copy(matrices = _matrices.toList(), isLoading = false) }
     }
 
     private fun crearMatrizIngenieria(): MatrizAspectos {
